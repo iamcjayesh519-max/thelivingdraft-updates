@@ -652,70 +652,7 @@ function livingdraft_customize_extra( $wp_customize ) {
 
 	endif; // ! $ld_new_system (Footer)
 
-	/* -------------------------------------------------- Privacy */
-
-	if ( ! $ld_new_system ) :
-
-	$wp_customize->add_section(
-		'livingdraft_privacy',
-		array(
-			'title'       => __( 'Cookies and tracking', 'livingdraft' ),
-			'description' => __( 'The banner holds Google Analytics back until a reader agrees. A banner that shows a message and loads the tracker anyway would not count as consent.', 'livingdraft' ),
-			'priority'    => 38,
-		)
-	);
-
-	$wp_customize->add_setting(
-		'livingdraft_consent_on',
-		array(
-			'default'           => true,
-			'sanitize_callback' => 'wp_validate_boolean',
-		)
-	);
-	$wp_customize->add_control(
-		'livingdraft_consent_on',
-		array(
-			'label'       => __( 'Ask before tracking', 'livingdraft' ),
-			'description' => __( 'Switch off only if you run no analytics at all.', 'livingdraft' ),
-			'section'     => 'livingdraft_privacy',
-			'type'        => 'checkbox',
-		)
-	);
-
-	$wp_customize->add_setting(
-		'livingdraft_consent_text',
-		array(
-			'default'           => __( 'We use cookies to understand which stories are read. Nothing is loaded until you choose.', 'livingdraft' ),
-			'sanitize_callback' => 'sanitize_text_field',
-		)
-	);
-	$wp_customize->add_control(
-		'livingdraft_consent_text',
-		array(
-			'label'   => __( 'Banner wording', 'livingdraft' ),
-			'section' => 'livingdraft_privacy',
-			'type'    => 'textarea',
-		)
-	);
-
-	$wp_customize->add_setting(
-		'livingdraft_consent_link',
-		array(
-			'default'           => '',
-			'sanitize_callback' => 'esc_url_raw',
-		)
-	);
-	$wp_customize->add_control(
-		'livingdraft_consent_link',
-		array(
-			'label'       => __( 'Cookie notice page', 'livingdraft' ),
-			'description' => __( 'Leave blank to use your privacy policy page.', 'livingdraft' ),
-			'section'     => 'livingdraft_privacy',
-			'type'        => 'url',
-		)
-	);
-
-	endif; // ! $ld_new_system (Privacy)
+	/* Privacy: the cookie banner was removed in 4.2.0 (plugin 4.9.0). */
 }
 add_action( 'customize_register', 'livingdraft_customize_extra', 20 );
 

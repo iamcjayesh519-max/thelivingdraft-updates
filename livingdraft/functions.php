@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LIVINGDRAFT_VERSION', '4.1.0' );
+define( 'LIVINGDRAFT_VERSION', '4.2.0' );
 
 /**
  * Featured images are cut to 1.91:1 — the same frame as a share card, so one
@@ -29,6 +29,9 @@ function livingdraft_setup() {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
 	add_theme_support( 'responsive-embeds' );
+	// The theme draws the plugin's AI "In brief" box itself (template-parts/ai-summary.php),
+	// so the plugin should not prepend its own copy to the content.
+	add_theme_support( 'livingdraft-ai-summary' );
 	add_theme_support( 'align-wide' );
 	add_theme_support( 'customize-selective-refresh-widgets' );
 

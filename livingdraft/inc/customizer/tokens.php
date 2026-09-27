@@ -694,6 +694,17 @@ function livingdraft_tokens() {
 			),
 
 			array(
+				'id'          => 'livingdraft_show_ai_summary',
+				'default'     => true,
+				'sanitize'    => 'checkbox',
+				'section'     => 'ld_article',
+				'label'       => __( 'Show "In brief" key points', 'livingdraft' ),
+				'description' => __( 'The AI key points written and reviewed in the post sidebar (The Living Draft Core). Hidden on articles that have none.', 'livingdraft' ),
+				'control'     => array( 'type' => 'checkbox', 'priority' => 115 ),
+				'ui_only'     => true,
+			),
+
+			array(
 				'id'          => 'livingdraft_show_read_next',
 				'default'     => true,
 				'sanitize'    => 'checkbox',
@@ -1065,46 +1076,6 @@ function livingdraft_tokens() {
 
 		),
 
-		/* ==============================================================
-		 * SECTION: Cookies & tracking (formerly livingdraft_privacy)
-		 * ============================================================== */
-		'ld_privacy' => array(
-
-			array(
-				'id'          => 'livingdraft_consent_on',
-				'default'     => true,
-				'sanitize'    => 'checkbox',
-				'section'     => 'ld_privacy',
-				'label'       => __( 'Show cookie consent banner', 'livingdraft' ),
-				'description' => __( 'Hold Google Analytics back until the reader clicks Accept. Turn off only if you run no analytics at all.', 'livingdraft' ),
-				'control'     => array( 'type' => 'checkbox', 'priority' => 10 ),
-				'ui_only'     => true,
-			),
-
-			array(
-				'id'          => 'livingdraft_consent_text',
-				'default'     => 'We use cookies to understand which stories are read. Nothing is loaded until you choose.',
-				'sanitize'    => 'textarea',
-				'section'     => 'ld_privacy',
-				'label'       => __( 'Banner wording', 'livingdraft' ),
-				'description' => __( 'The text shown in the cookie banner. Keep it short and honest.', 'livingdraft' ),
-				'control'     => array( 'type' => 'textarea', 'priority' => 20 ),
-				'ui_only'     => true,
-			),
-
-			array(
-				'id'          => 'livingdraft_consent_link',
-				'default'     => '',
-				'sanitize'    => 'url',
-				'section'     => 'ld_privacy',
-				'label'       => __( 'Cookie notice page URL', 'livingdraft' ),
-				'description' => __( 'Where the "Read the notice" link in the banner goes. Leave blank to use your privacy policy page.', 'livingdraft' ),
-				'control'     => array( 'type' => 'url', 'priority' => 30 ),
-				'ui_only'     => true,
-			),
-
-		),
-
 	);
 }
 
@@ -1351,11 +1322,6 @@ function livingdraft_ld_sections() {
 			'priority'    => 70,
 		),
 
-		'ld_privacy' => array(
-			'title'       => __( 'Cookies and tracking', 'livingdraft' ),
-			'description' => __( 'The cookie banner holds Google Analytics back until a reader agrees. A banner that shows a message but loads the tracker anyway would not count as consent.', 'livingdraft' ),
-			'priority'    => 75,
-		),
 
 	);
 }

@@ -3,7 +3,7 @@ Theme Name: The Living Draft
 Theme URI: https://thelivingdraft.com
 Author: The Living Draft
 Description: A printed-broadsheet news theme. Serif throughout, three rule weights, a dateline strip, a drop cap on the lead and column dividers between stories. Records what changed on a story after it ran. No jQuery, no Bootstrap, no icon fonts, no webfonts, no external requests.
-Version: 4.1.0
+Version: 4.2.0
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
@@ -1859,3 +1859,36 @@ a.tl-title:hover { text-decoration: underline; }
   color: var(--ink-3);
 }
 .ranked-reads::before { content: "·"; margin: 0 5px; }
+
+/* ============================================================
+   AI key points — "In brief" (4.2.0)
+   Sits between the update log and the story. Double rule on top,
+   hairline below: the same weights as everything else.
+   ============================================================ */
+
+.ld-brief-box {
+  margin: 0 0 1.8em;
+  padding: 14px 0 12px;
+  border-top: 3px double var(--ink);
+  border-bottom: 1px solid var(--rule);
+  max-width: var(--measure);
+}
+.ld-brief-box-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mark);
+  margin: 0 0 8px;
+}
+.ld-brief-box ul {
+  margin: 0;
+  padding-left: 1.15em;
+  font-family: var(--serif);
+  font-size: calc(var(--base) * 1.02);
+  line-height: 1.5;
+}
+.ld-brief-box li { margin: 0 0 .4em; }
+.ld-brief-box li:last-child { margin-bottom: 0; }
+.ld-brief-box li::marker { color: var(--mark); }
+@media print { .ld-brief-box { border-top-width: 1px; } }

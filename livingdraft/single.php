@@ -71,6 +71,8 @@ get_header();
 
 					<?php get_template_part( 'template-parts/update-log' ); ?>
 
+					<?php get_template_part( 'template-parts/ai-summary' ); ?>
+
 					<div class="entry-content">
 						<?php
 						the_content();

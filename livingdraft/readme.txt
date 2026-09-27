@@ -1,10 +1,23 @@
 === The Living Draft ===
-Version: 4.1.0
+Version: 4.2.0
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+== What is new in 4.2 ==
+
+NO COOKIE BANNER
+The Cookies and tracking section is gone from the Customizer. The banner
+itself was removed in The Living Draft Core 4.9.0, which now measures
+every reader.
+
+"IN BRIEF" KEY POINTS
+Articles show the AI key points written and reviewed in the post sidebar
+(The Living Draft Core 4.9.0) between the update log and the story.
+Customize > Article > Show "In brief" key points turns it off site-wide;
+each article can also hide its own.
 
 == What is new in 4.1 ==
 
@@ -214,7 +227,7 @@ Also new:
   - Latest / Popular / Trending lists.
   - A real footer: policy links, social, colophon.
   - Newsletter band above the footer, storing addresses in your own database.
-  - Cookie consent that actually holds Analytics back until the reader agrees.
+  - An "In brief" box above articles for the AI key points from The Living Draft Core.
   - The sidebar lists your busiest five sections instead of all of them.
   - Colours, fonts, widths and every page element are now Customizer controls.
   - Nine article blocks in the editor: Key Points, FAQ, Rating, Pros and Cons,
