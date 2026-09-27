@@ -1,0 +1,785 @@
+/*
+ * SEO metabox on the post edit screen.
+ *
+ * Editorial palette matching the admin design system: paper-white
+ * background, restrained serif titles, mono details. Kept scoped to
+ * .ld-seo-metabox so it can't leak into the rest of the editor.
+ */
+
+.ld-seo-metabox {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+	color: #1a1a1a;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.ld-seo-metabox * { box-sizing: border-box; }
+
+/* --- SERP preview ---------------------------------------------------- */
+
+.ld-seo-serp {
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	padding: 14px 16px;
+	margin: 4px 0 20px;
+	max-width: 600px;
+	font-family: Arial, sans-serif;
+}
+
+.ld-seo-serp-url {
+	color: #202124;
+	font-size: 12px;
+	margin: 0 0 2px;
+	word-break: break-all;
+}
+
+.ld-seo-serp-title {
+	color: #1a0dab;
+	font-size: 20px;
+	font-weight: 400;
+	margin: 0 0 4px;
+	line-height: 1.3;
+}
+
+.ld-seo-serp-desc {
+	color: #4d5156;
+	font-size: 14px;
+	line-height: 1.58;
+	margin: 0;
+	word-wrap: break-word;
+}
+
+.ld-seo-serp-title.is-truncated::after,
+.ld-seo-serp-desc.is-truncated::after {
+	content: "…";
+	color: #4d5156;
+}
+
+/* --- Score + checklist ---------------------------------------------- */
+
+.ld-seo-analysis {
+	background: #fafaf7;
+	border: 1px solid #e5e5e5;
+	padding: 14px 16px;
+	margin-bottom: 20px;
+}
+
+.ld-seo-score {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 12px;
+}
+
+.ld-seo-score-num {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	border: 3px solid #d4d4d4;
+	color: #666;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Georgia, serif;
+	font-size: 20px;
+	font-weight: 400;
+	flex-shrink: 0;
+	transition: border-color .15s ease, color .15s ease;
+}
+
+.ld-seo-score-num.is-good { border-color: #2f7a3a; color: #2f7a3a; }
+.ld-seo-score-num.is-warn { border-color: #b7791f; color: #b7791f; }
+.ld-seo-score-num.is-bad  { border-color: #a32e2e; color: #a32e2e; }
+
+.ld-seo-score-title {
+	font-family: Georgia, serif;
+	font-size: 15px;
+	color: #1a1a1a;
+}
+
+.ld-seo-score-hint {
+	color: #666;
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+.ld-seo-checks {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ld-seo-checks li {
+	padding: 6px 0;
+	border-bottom: 1px solid #eee;
+	font-size: 13px;
+}
+
+.ld-seo-checks li:last-child { border-bottom: 0; }
+
+.ld-seo-check-head {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.ld-seo-check-dot {
+	flex-shrink: 0;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	margin-top: 4px;
+}
+.ld-seo-check-dot.is-pass { background: #2f7a3a; }
+.ld-seo-check-dot.is-warn { background: #b7791f; }
+.ld-seo-check-dot.is-fail { background: #a32e2e; }
+
+.ld-seo-check-body {
+	flex: 1;
+	min-width: 0;
+}
+.ld-seo-check-body strong {
+	color: #1a1a1a;
+	font-weight: 500;
+}
+.ld-seo-check-body .ld-seo-check-hint {
+	color: #666;
+	font-size: 12px;
+	display: block;
+	margin-top: 1px;
+}
+
+/* Fix-with-AI button on each check row --------------------------------- */
+
+.ld-seo-check-fix-btn {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	background: transparent;
+	color: #8b3a2c;
+	border: 1px solid #d4c4bf;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background .1s ease, border-color .1s ease;
+	margin-top: 1px;
+	white-space: nowrap;
+}
+.ld-seo-check-fix-btn:hover:not(:disabled) {
+	background: #faf6f5;
+	border-color: #8b3a2c;
+}
+.ld-seo-check-fix-btn:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+.ld-seo-check-fix-btn .ld-seo-ai-glyph {
+	font-size: 11px;
+}
+
+/* Inline suggestion panel (suggest-mode result) ----------------------- */
+
+.ld-seo-check-panel {
+	margin: 10px 0 4px 22px; /* indent to align under the label */
+	padding: 12px 14px;
+	background: #fff;
+	border-left: 3px solid #8b3a2c;
+	border-top: 1px solid #eee;
+	border-right: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+.ld-seo-check-panel-text {
+	color: #1a1a1a;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	font-family: Georgia, serif;
+	font-size: 14px;
+	line-height: 1.55;
+}
+
+.ld-seo-check-panel-actions {
+	margin-top: 10px;
+	display: flex;
+	gap: 8px;
+}
+
+.ld-seo-check-panel-btn {
+	padding: 5px 12px;
+	background: #fff;
+	color: #333;
+	border: 1px solid #d4d4d4;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background .1s ease;
+}
+.ld-seo-check-panel-btn:hover {
+	background: #f5f5f5;
+}
+.ld-seo-check-panel-btn.is-primary {
+	background: #8b3a2c;
+	color: #fff;
+	border-color: #8b3a2c;
+}
+.ld-seo-check-panel-btn.is-primary:hover {
+	background: #6d2e23;
+}
+.ld-seo-check-panel-btn.is-copied {
+	background: #2f7a3a !important;
+	border-color: #2f7a3a !important;
+	color: #fff !important;
+}
+
+/* Field flash after autofix ------------------------------------------- */
+
+.is-ld-ai-updated {
+	animation: ld-seo-flash 1.4s ease-out;
+}
+@keyframes ld-seo-flash {
+	0%   { background-color: #fff4e5; box-shadow: 0 0 0 3px rgba(139, 58, 44, 0.20); }
+	100% { background-color: #fff; box-shadow: none; }
+}
+
+/* --- Fields ---------------------------------------------------------- */
+
+.ld-seo-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.ld-seo-field label {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+	font-size: 10px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #666;
+	margin-bottom: 6px;
+	font-weight: 500;
+}
+
+.ld-seo-counter {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	color: #999;
+	text-transform: none;
+	letter-spacing: 0;
+}
+.ld-seo-counter.is-good { color: #2f7a3a; }
+.ld-seo-counter.is-warn { color: #b7791f; }
+.ld-seo-counter.is-bad  { color: #a32e2e; }
+
+.ld-seo-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+}
+
+.ld-seo-input {
+	flex: 1;
+	padding: 8px 10px;
+	font-size: 14px;
+	border: 1px solid #d4d4d4;
+	background: #fff;
+	font-family: inherit;
+	line-height: 1.4;
+}
+
+.ld-seo-input:focus {
+	outline: none;
+	border-color: #8b3a2c;
+	box-shadow: 0 0 0 3px rgba(139, 58, 44, 0.12);
+}
+
+.ld-seo-textarea {
+	resize: vertical;
+	min-height: 60px;
+	font-family: inherit;
+}
+
+.ld-seo-help {
+	color: #888;
+	font-size: 11px;
+	margin: 4px 0 0;
+}
+
+/* --- AI generate buttons -------------------------------------------- */
+
+.ld-seo-ai-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 12px;
+	background: linear-gradient(135deg, #8b3a2c 0%, #6d2e23 100%);
+	color: #fff;
+	border: 0;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 500;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: opacity .1s ease;
+}
+
+.ld-seo-ai-btn:hover { opacity: 0.9; }
+.ld-seo-ai-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.ld-seo-ai-btn-tall { align-self: stretch; }
+
+.ld-seo-ai-glyph {
+	font-size: 12px;
+	line-height: 1;
+}
+
+/* --- Advanced (collapsed by default) -------------------------------- */
+
+.ld-seo-advanced {
+	margin-top: 8px;
+	padding-top: 12px;
+	border-top: 1px dashed #d4d4d4;
+}
+
+.ld-seo-advanced summary {
+	cursor: pointer;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #666;
+	padding: 4px 0;
+	list-style: none;
+}
+.ld-seo-advanced summary::-webkit-details-marker { display: none; }
+.ld-seo-advanced summary::before { content: "▸ "; }
+.ld-seo-advanced[open] summary::before { content: "▾ "; }
+
+.ld-seo-advanced .ld-seo-field {
+	margin-top: 14px;
+}
+
+.ld-seo-robots label {
+	font-family: inherit !important;
+	font-size: 13px !important;
+	text-transform: none !important;
+	letter-spacing: 0 !important;
+	color: #333 !important;
+	font-weight: 400 !important;
+	display: block !important;
+	margin: 0 !important;
+	padding: 2px 0 !important;
+}
+
+/* Image-alt strip in the SEO metabox --------------------------------- */
+
+.ld-seo-image-alt-strip {
+	margin-top: 16px;
+	padding: 12px 14px;
+	background: #fafaf7;
+	border: 1px solid #e5e5e5;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	font-size: 13px;
+}
+
+.ld-seo-image-alt-count {
+	color: #333;
+	flex: 1;
+	min-width: 200px;
+}
+
+.ld-seo-image-alt-count strong {
+	color: var(--tld-mark, #8b3a2c);
+	font-family: Georgia, serif;
+	font-size: 18px;
+	font-weight: 400;
+	margin-right: 4px;
+}
+
+.ld-seo-image-alt-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 12px;
+	background: linear-gradient(135deg, #8b3a2c 0%, #6d2e23 100%);
+	color: #fff;
+	border: 0;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 500;
+	cursor: pointer;
+	transition: opacity .1s ease;
+}
+.ld-seo-image-alt-btn:hover:not(:disabled) { opacity: 0.9; }
+.ld-seo-image-alt-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.ld-seo-image-alt-progress {
+	flex-basis: 100%;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	color: var(--tld-mark, #8b3a2c);
+	margin-top: 4px;
+}
+
+/* Media modal / attachment field button ------------------------------ */
+
+.ld-ai-alt-btn .ld-ai-alt-glyph,
+.ld-seo-image-alt-btn .ld-seo-ai-glyph {
+	font-size: 12px;
+	line-height: 1;
+}
+.ld-ai-alt-status {
+	margin-left: 6px;
+	font-size: 12px;
+	font-family: "IBM Plex Mono", monospace;
+}
+
+/* Slug preview line — a compact, monospaced URL preview under the
+   slug input. The current slug portion is wrapped in a span so the
+   live-updating JS can rewrite just that segment as the user types,
+   without reconstructing the whole URL. */
+.ld-seo-slug-preview {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	color: var(--tld-ink-3, #666);
+	background: #fafaf7;
+	padding: 6px 10px;
+	border: 1px solid #eee;
+	margin-top: 6px;
+	margin-bottom: 4px;
+	word-break: break-all;
+	line-height: 1.5;
+}
+.ld-seo-slug-current {
+	color: var(--tld-mark, #8b3a2c);
+	font-weight: 500;
+}
+.ld-seo-input.is-mono {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 12px;
+}
+
+/* ==========================================================================
+   v3.1: Sidebar layout overrides.
+
+   The SEO metabox now lives in the post sidebar (right column) instead of
+   the wide "normal" position below the content. WordPress renders sidebar
+   metaboxes inside #side-sortables in the classic editor and inside the
+   "Meta Boxes" area in the Gutenberg document sidebar — both are ~280px
+   wide. The rules below re-flow the dense parts of the panel so they stay
+   readable in that narrower column.
+
+   Scoped to `#side-sortables .ld-seo-metabox` and to the Gutenberg meta-box
+   area so the same CSS can never bleed into a metabox that a user has
+   dragged back into the main column (WordPress allows that per-user).
+   ========================================================================== */
+
+#side-sortables .ld-seo-metabox,
+.edit-post-meta-boxes-area .ld-seo-metabox {
+
+	/* Nothing needs 600px in the sidebar. Give the SERP preview back its
+	   full width and let it wrap. */
+	--ld-seo-sidebar: 1;
+}
+
+#side-sortables .ld-seo-serp,
+.edit-post-meta-boxes-area .ld-seo-serp {
+	max-width: none;
+	padding: 10px 12px;
+	margin: 4px 0 14px;
+}
+
+#side-sortables .ld-seo-serp-title,
+.edit-post-meta-boxes-area .ld-seo-serp-title {
+	font-size: 16px;
+	line-height: 1.3;
+	word-wrap: break-word;
+	overflow-wrap: anywhere;
+}
+
+#side-sortables .ld-seo-serp-desc,
+.edit-post-meta-boxes-area .ld-seo-serp-desc {
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+/* Compress the analysis block — the 56px score circle plus 3 gap lines
+   ate too much vertical space. Keep the circle but shrink type. */
+#side-sortables .ld-seo-analysis,
+.edit-post-meta-boxes-area .ld-seo-analysis {
+	padding: 10px 12px;
+	margin-bottom: 14px;
+}
+
+#side-sortables .ld-seo-score,
+.edit-post-meta-boxes-area .ld-seo-score {
+	gap: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+
+#side-sortables .ld-seo-score-num,
+.edit-post-meta-boxes-area .ld-seo-score-num {
+	width: 44px;
+	height: 44px;
+	font-size: 16px;
+	border-width: 2px;
+}
+
+#side-sortables .ld-seo-score-title,
+.edit-post-meta-boxes-area .ld-seo-score-title {
+	font-size: 13px;
+}
+
+#side-sortables .ld-seo-score-hint,
+.edit-post-meta-boxes-area .ld-seo-score-hint {
+	font-size: 11px;
+}
+
+/* Check rows — flex-column so the Fix-with-AI button lands under the
+   label instead of crashing into it at ~280px wide. */
+#side-sortables .ld-seo-check-head,
+.edit-post-meta-boxes-area .ld-seo-check-head {
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+#side-sortables .ld-seo-check-body,
+.edit-post-meta-boxes-area .ld-seo-check-body {
+	flex-basis: calc(100% - 22px);
+}
+
+#side-sortables .ld-seo-check-fix-btn,
+.edit-post-meta-boxes-area .ld-seo-check-fix-btn {
+	margin-left: 22px; /* line up under the label after the dot */
+}
+
+#side-sortables .ld-seo-check-panel,
+.edit-post-meta-boxes-area .ld-seo-check-panel {
+	margin-left: 0;
+	padding: 10px 12px;
+}
+
+/* Field rows — the AI Generate button sat beside the input on the main
+   column. In the sidebar we need it below, otherwise a 60px button on the
+   right leaves ~200px for a URL or SEO title, which is unusable. */
+#side-sortables .ld-seo-input-row,
+.edit-post-meta-boxes-area .ld-seo-input-row {
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+#side-sortables .ld-seo-input-row > .ld-seo-input,
+#side-sortables .ld-seo-input-row > .ld-seo-textarea,
+.edit-post-meta-boxes-area .ld-seo-input-row > .ld-seo-input,
+.edit-post-meta-boxes-area .ld-seo-input-row > .ld-seo-textarea {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+
+#side-sortables .ld-seo-ai-btn,
+.edit-post-meta-boxes-area .ld-seo-ai-btn {
+	align-self: flex-start;
+}
+
+#side-sortables .ld-seo-ai-btn-tall,
+.edit-post-meta-boxes-area .ld-seo-ai-btn-tall {
+	align-self: flex-start; /* override the .is-tall stretch */
+}
+
+/* Image-alt strip — was flex with min-width:200px on the count block, which
+   forced a horizontal overflow at sidebar widths. Stack vertically. */
+#side-sortables .ld-seo-image-alt-strip,
+.edit-post-meta-boxes-area .ld-seo-image-alt-strip {
+	padding: 10px 12px;
+	gap: 8px;
+}
+
+#side-sortables .ld-seo-image-alt-count,
+.edit-post-meta-boxes-area .ld-seo-image-alt-count {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+
+/* Slug preview breaks at any character — good in wide, essential in narrow. */
+#side-sortables .ld-seo-slug-preview,
+.edit-post-meta-boxes-area .ld-seo-slug-preview {
+	font-size: 10px;
+}
+
+/* Advanced section — nothing structural changes, just tighten padding. */
+#side-sortables .ld-seo-advanced .ld-seo-field,
+.edit-post-meta-boxes-area .ld-seo-advanced .ld-seo-field {
+	margin-top: 10px;
+}
+
+/* ============================================================
+   v3.2 UI REFRESH — additive polish for the sidebar metabox.
+   Kept in one block at the bottom, so nothing above changes.
+   ============================================================ */
+
+.ld-seo-metabox {
+  /* Local tokens so this file can be reasoned about independently
+     even though it inherits the plugin's admin palette. */
+  --ld-seo-shadow: 0 1px 2px rgba(20, 20, 20, 0.04);
+  --ld-seo-radius: 0;
+  --ld-seo-focus:  0 0 0 3px rgba(139, 58, 44, 0.15);
+  --ld-seo-transition: 160ms cubic-bezier(.2, .8, .2, 1);
+}
+
+/* SERP preview — soft shadow, transition on hover. */
+.ld-seo-serp {
+  box-shadow: var(--ld-seo-shadow);
+  transition: box-shadow var(--ld-seo-transition);
+}
+.ld-seo-serp:hover {
+  box-shadow: 0 2px 6px rgba(20, 20, 20, 0.06);
+}
+
+/* Analysis panel + score row — subtle depth. */
+.ld-seo-analysis {
+  box-shadow: var(--ld-seo-shadow);
+}
+
+/* Score circle: animate the border color change when status flips. */
+.ld-seo-score-num {
+  transition: border-color 250ms ease, color 250ms ease, transform 200ms ease;
+}
+.ld-seo-score-num.is-good,
+.ld-seo-score-num.is-warn,
+.ld-seo-score-num.is-bad {
+  transform: scale(1);
+}
+
+/* Check row dots: subtle glow so status is legible at a glance. */
+.ld-seo-check-dot {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+}
+.ld-seo-check-dot.is-pass { box-shadow: 0 0 0 3px rgba(47, 122, 58, 0.12); }
+.ld-seo-check-dot.is-warn { box-shadow: 0 0 0 3px rgba(183, 121, 31, 0.12); }
+.ld-seo-check-dot.is-fail { box-shadow: 0 0 0 3px rgba(163, 46, 46, 0.12); }
+
+/* Check row hover — draws the eye to what's actionable. */
+.ld-seo-checks li {
+  transition: background var(--ld-seo-transition);
+  margin: 0 -6px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.ld-seo-checks li:hover {
+  background: rgba(139, 58, 44, 0.02);
+}
+
+/* Fields — inline focus ring matching the admin design system. */
+.ld-seo-input:focus {
+  box-shadow: var(--ld-seo-focus);
+}
+.ld-seo-input:hover:not(:focus) {
+  border-color: #a0a0a0;
+}
+
+/* AI buttons — subtle lift on hover, sheen animation reused
+   from the admin design system so the two feel like one system. */
+.ld-seo-ai-btn {
+  transition: transform var(--ld-seo-transition), box-shadow var(--ld-seo-transition), opacity .1s ease;
+  box-shadow: 0 1px 2px rgba(139, 58, 44, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.ld-seo-ai-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(139, 58, 44, 0.2);
+  opacity: 1;
+}
+.ld-seo-ai-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.ld-seo-ai-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 500ms ease;
+  pointer-events: none;
+}
+.ld-seo-ai-btn:hover:not(:disabled)::after {
+  transform: translateX(100%);
+}
+
+/* Focus ring for keyboard users on the AI buttons. */
+.ld-seo-ai-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 58, 44, 0.3), 0 3px 8px rgba(139, 58, 44, 0.2);
+}
+
+/* Slug preview — a shade nicer typography, less noise. */
+.ld-seo-slug-preview {
+  line-height: 1.6;
+  transition: border-color var(--ld-seo-transition);
+}
+.ld-seo-slug-preview:hover {
+  border-color: #d0d0d0;
+}
+
+/* Image-alt strip — matches the analysis panel treatment. */
+.ld-seo-image-alt-strip {
+  box-shadow: var(--ld-seo-shadow);
+  transition: border-color var(--ld-seo-transition);
+}
+.ld-seo-image-alt-strip:hover {
+  border-color: #d0d0d0;
+}
+
+/* Details/summary chevron animation on Advanced. */
+.ld-seo-advanced summary {
+  transition: color var(--ld-seo-transition);
+}
+.ld-seo-advanced summary:hover {
+  color: var(--tld-mark, #8b3a2c);
+}
+.ld-seo-advanced summary::before {
+  transition: transform var(--ld-seo-transition);
+  display: inline-block;
+}
+
+/* Suggestion panel (Fix-with-AI result) — subtle fade-in. */
+@keyframes ld-seo-slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ld-seo-check-panel {
+  animation: ld-seo-slide-in 240ms cubic-bezier(.2, .8, .2, 1) both;
+  box-shadow: var(--ld-seo-shadow);
+}
+
+/* Respect motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  .ld-seo-metabox *,
+  .ld-seo-metabox *::before,
+  .ld-seo-metabox *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

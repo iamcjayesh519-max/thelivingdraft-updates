@@ -1,0 +1,306 @@
+/*
+ * Styling for the article blocks.
+ *
+ * Every colour here is written as var(--token, fallback). While the Living
+ * Draft theme is active the blocks take its colours, so changing the red in
+ * the Customizer changes every FAQ box and rating on the site. If the theme
+ * is ever swapped, the fallback after the comma keeps them readable.
+ */
+
+.ld-keypoints,
+.ld-faq,
+.ld-rating,
+.ld-timeline,
+.ld-toc,
+.ld-authorcard {
+  font-family: var(--serif, Georgia, "Times New Roman", serif);
+  color: var(--ink, #111);
+}
+
+/* --- Key Points --------------------------------------------------- */
+
+.ld-keypoints {
+  border-top: 3px double var(--ink, #111);
+  border-bottom: 3px double var(--ink, #111);
+  padding: 16px 0 8px;
+  margin: 0 0 1.6em;
+  background: transparent;
+}
+.ld-keypoints-title {
+  font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
+  font-size: 11px !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--ink-3, #63635c);
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 0 12px !important;
+}
+.ld-keypoints-list { list-style: none; padding-left: 0; margin: 0; }
+.ld-keypoints-list li {
+  position: relative;
+  padding: 0 0 9px 20px;
+  margin: 0 0 9px;
+  border-bottom: 1px solid var(--rule-2, #e6e3da);
+  line-height: 1.5;
+}
+.ld-keypoints-list li:last-child { border-bottom: 0; margin-bottom: 0; }
+.ld-keypoints-list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .62em;
+  width: 7px; height: 7px;
+  background: var(--mark, #a3271f);
+}
+
+/* --- Section heading ---------------------------------------------- */
+
+.ld-section-head {
+  color: var(--mark, #a3271f);
+  border-top: 1px solid var(--ink, #111);
+  padding-top: 10px;
+  margin-top: 1.6em;
+}
+
+/* --- FAQ ----------------------------------------------------------- */
+
+.ld-faq {
+  border-top: 3px double var(--ink, #111);
+  padding-top: 14px;
+  margin: 2em 0;
+}
+.ld-faq-title {
+  font-size: 22px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 0 14px !important;
+}
+.ld-faq-item {
+  border-bottom: 1px solid var(--rule, #d8d5cc);
+  padding: 0;
+  margin: 0;
+}
+.ld-faq-item summary {
+  cursor: pointer;
+  padding: 13px 28px 13px 0;
+  position: relative;
+  font-size: 17px;
+  line-height: 1.35;
+  list-style: none;
+}
+.ld-faq-item summary::-webkit-details-marker { display: none; }
+.ld-faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 4px; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono, monospace);
+  color: var(--mark, #a3271f);
+  font-size: 19px;
+  line-height: 1;
+}
+.ld-faq-item[open] summary::after { content: "\2212"; }
+.ld-faq-item > *:not(summary) {
+  margin: 0 0 13px;
+  color: var(--ink-2, #4a4a45);
+  font-size: 16px;
+}
+
+/* --- Rating -------------------------------------------------------- */
+
+.ld-rating {
+  border: 1px solid var(--ink, #111);
+  padding: 18px 20px;
+  margin: 2em 0;
+  background: var(--paper-2, #f4f3ee);
+}
+.ld-rating-title {
+  font-family: var(--mono, monospace);
+  font-size: 11px !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  border: 0 !important;
+  padding: 0 0 6px !important;
+  margin: 0 0 12px !important;
+  border-bottom: 1px solid var(--ink, #111) !important;
+}
+.ld-rating-score { font-size: 15px; color: var(--ink-3, #63635c); margin-bottom: .6em; }
+.ld-rating-score strong { font-size: 40px; line-height: 1; color: var(--mark, #a3271f); }
+.ld-rating > *:last-child { margin-bottom: 0; }
+
+/* --- Pros and cons -------------------------------------------------- */
+
+.ld-proscons { margin: 2em 0; border-top: 3px double var(--ink, #111); padding-top: 16px; }
+.ld-proscons h3 {
+  font-family: var(--mono, monospace);
+  font-size: 11px !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  padding-bottom: 6px;
+  margin: 0 0 12px !important;
+  border-bottom: 1px solid var(--ink, #111);
+}
+.ld-proscons ul { list-style: none; padding-left: 0; }
+.ld-proscons li {
+  padding: 0 0 8px 18px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--rule-2, #e6e3da);
+  position: relative;
+  font-size: 16px;
+}
+.ld-proscons li:last-child { border-bottom: 0; }
+.ld-pros li::before { content: "+"; position: absolute; left: 0; color: var(--mark, #a3271f); font-weight: 700; }
+.ld-cons li::before { content: "\2212"; position: absolute; left: 0; color: var(--ink-3, #63635c); font-weight: 700; }
+
+/* --- Timeline ------------------------------------------------------- */
+
+.ld-timeline { margin: 2em 0; border-top: 3px double var(--ink, #111); padding-top: 14px; }
+.ld-timeline-title { font-size: 22px !important; border: 0 !important; padding: 0 !important; margin: 0 0 16px !important; }
+.ld-timeline-item {
+  position: relative;
+  padding: 0 0 16px 22px;
+  margin: 0;
+  border-left: 1px solid var(--rule, #d8d5cc);
+}
+.ld-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -4px; top: 6px;
+  width: 7px; height: 7px;
+  background: var(--mark, #a3271f);
+}
+.ld-timeline-item > *:last-child { margin-bottom: 0; }
+.ld-timeline-date {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3, #63635c);
+  margin-bottom: 5px !important;
+}
+
+/* --- Comparison table ------------------------------------------------ */
+
+.ld-compare table { border-collapse: collapse; width: 100%; }
+.ld-compare th, .ld-compare td {
+  border: 1px solid var(--rule, #d8d5cc);
+  padding: 9px 11px;
+  text-align: left;
+}
+.ld-compare th {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: var(--paper-2, #f4f3ee);
+}
+
+/* --- Table of contents ------------------------------------------------ */
+
+.ld-toc {
+  border: 1px solid var(--rule, #d8d5cc);
+  padding: 16px 20px;
+  margin: 2em 0;
+  background: var(--paper-2, #f4f3ee);
+}
+.ld-toc-title {
+  font-family: var(--mono, monospace);
+  font-size: 11px !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 0 10px !important;
+}
+.ld-toc ol { list-style: none; padding-left: 0; margin: 0; counter-reset: ldtoc; }
+.ld-toc li { padding: 6px 0; border-bottom: 1px solid var(--rule-2, #e6e3da); font-size: 16px; }
+.ld-toc li:last-child { border-bottom: 0; }
+.ld-toc li.is-sub { padding-left: 20px; font-size: 15px; }
+.ld-toc a { color: var(--ink, #111); text-decoration: none; }
+.ld-toc a:hover { color: var(--mark, #a3271f); text-decoration: underline; }
+.ld-toc-placeholder { color: var(--ink-3, #63635c); font-size: 15px; margin: 0; }
+
+/* --- Author card ------------------------------------------------------- */
+
+.ld-authorcard {
+  border-top: 1px solid var(--ink, #111);
+  border-bottom: 1px solid var(--ink, #111);
+  padding: 16px 0;
+  margin: 2em 0;
+}
+.ld-authorcard-name { font-size: 20px !important; margin: 0 0 4px !important; border: 0 !important; padding: 0 !important; }
+.ld-authorcard-role {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mark, #a3271f);
+  margin-bottom: 10px !important;
+}
+.ld-authorcard > *:last-child { margin-bottom: 0; }
+
+/* --- Cookie banner ------------------------------------------------------ */
+
+.ld-consent {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  background: var(--paper, #fdfdfb);
+  border-top: 3px double var(--ink, #111);
+  padding: 16px 0;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, .08);
+}
+.ld-consent-inner {
+  max-width: var(--wrap, 1140px);
+  margin: 0 auto;
+  padding: 0 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+.ld-consent-text {
+  margin: 0;
+  font-family: var(--serif, Georgia, serif);
+  font-size: 15px;
+  color: var(--ink-2, #4a4a45);
+  max-width: 62ch;
+}
+/* Underlined, not just coloured. A link told apart by colour alone is
+   invisible to a reader with colour blindness — and it was the one thing
+   costing this site a perfect accessibility score. */
+.ld-consent-text a {
+  color: var(--mark, #a3271f);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ld-consent-actions { display: flex; gap: 10px; flex: none; }
+.ld-consent button {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  min-height: 44px;
+  cursor: pointer;
+  border: 1px solid var(--ink, #111);
+  background: transparent;
+  color: var(--ink, #111);
+}
+.ld-consent .ld-consent-yes { background: var(--ink, #111); color: var(--paper, #fdfdfb); }
+.ld-consent button:hover { opacity: .86; }
+
+/* --- Custom code block --------------------------------------------------- */
+
+.ld-custom { margin: 1.6em 0; }
+
+@media (max-width: 599px) {
+  .ld-consent-inner { flex-direction: column; align-items: stretch; }
+  .ld-consent-actions { justify-content: stretch; }
+  .ld-consent-actions button { flex: 1; }
+}

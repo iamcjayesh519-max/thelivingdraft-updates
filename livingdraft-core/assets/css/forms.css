@@ -1,0 +1,204 @@
+/**
+ * Forms — front end.
+ *
+ * Written against the theme's custom properties with a fallback on every
+ * one, so the contact form still looks deliberate under a theme that
+ * defines none of them. Same reasoning as listen.css: this is plugin CSS,
+ * and the plugin has to survive a theme change.
+ *
+ * The theme's own signup bar is NOT restyled here. It has its own rules in
+ * style.css, it already looks right, and the only thing wrong with it was
+ * that nothing submitted it. Overriding a working design from a plugin
+ * would be the second mistake.
+ *
+ * @package LivingDraftCore
+ * @since 4.5.0
+ */
+
+.ld-form {
+	max-width: var(--measure, 68ch);
+	margin: 0 0 2em;
+	font-family: var(--sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+}
+
+.ld-form__title {
+	font-family: var(--serif, Georgia, serif);
+	font-size: 24px;
+	line-height: 1.2;
+	margin: 0 0 8px;
+	color: var(--ink, #111);
+}
+
+.ld-form__intro {
+	margin: 0 0 20px;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--ink-2, #4a4a45);
+}
+
+/* ---- Fields ---------------------------------------------------------- */
+
+.ld-form__field {
+	margin: 0 0 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.ld-form__field label {
+	font-size: 12px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--ink-3, #63635c);
+}
+
+.ld-form input[type="text"],
+.ld-form input[type="email"],
+.ld-form textarea {
+	font: inherit;
+	/* 16px stops iOS Safari zooming the page when a field takes focus. */
+	font-size: 16px;
+	line-height: 1.5;
+	color: var(--ink, #111);
+	background: var(--paper, #fff);
+	border: 1px solid var(--rule, #d8d5cc);
+	border-radius: 0;
+	padding: 10px 12px;
+	width: 100%;
+	transition: border-color 160ms ease;
+}
+
+.ld-form input:hover:not(:focus),
+.ld-form textarea:hover:not(:focus) {
+	border-color: var(--ink-3, #63635c);
+}
+
+.ld-form input:focus,
+.ld-form textarea:focus {
+	outline: none;
+	border-color: var(--ink, #111);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mark, #a3271f) 15%, transparent);
+}
+
+.ld-form textarea { resize: vertical; min-height: 140px; }
+
+/* Two fields side by side above 620px, stacked below. Name and email are
+   short enough to share a line; nothing else here is. */
+.ld-form__row {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0 16px;
+}
+
+@media (min-width: 620px) {
+	.ld-form__row { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---- The inline (subscribe) arrangement ------------------------------ */
+
+.ld-form__inline {
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+}
+.ld-form__inline .ld-form__field { flex: 1 1 auto; margin: 0; }
+
+@media (max-width: 460px) {
+	.ld-form__inline { flex-direction: column; }
+}
+
+/* ---- Button ---------------------------------------------------------- */
+
+.ld-form__submit {
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--paper, #fff);
+	background: var(--ink, #111);
+	border: 1px solid var(--ink, #111);
+	border-radius: 0;
+	padding: 11px 22px;
+	cursor: pointer;
+	transition: background 160ms ease, border-color 160ms ease;
+	flex: none;
+}
+
+.ld-form__submit:hover {
+	background: var(--mark, #a3271f);
+	border-color: var(--mark, #a3271f);
+}
+
+.ld-form__submit:focus-visible {
+	outline: 2px solid var(--mark, #a3271f);
+	outline-offset: 2px;
+}
+
+.ld-form__submit[disabled] {
+	background: var(--ink-3, #63635c);
+	border-color: var(--ink-3, #63635c);
+	cursor: default;
+}
+
+.ld-form__foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-top: 4px;
+}
+
+.ld-form__note {
+	margin: 8px 0 0;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--ink-3, #63635c);
+}
+.ld-form__foot .ld-form__note { margin: 0; flex: 1 1 200px; }
+
+/* ---- Status ---------------------------------------------------------- */
+
+/* Empty by default and taking no space. A reserved empty line under every
+   form is a permanent gap that only means something for two seconds. */
+.ld-form__status:empty { display: none; }
+
+.ld-form__status {
+	margin: 12px 0 0;
+	font-size: 14px;
+	line-height: 1.5;
+	padding: 9px 12px;
+	border-left: 3px solid var(--rule, #d8d5cc);
+	background: var(--paper-2, #f4f3ee);
+	color: var(--ink-2, #4a4a45);
+}
+
+.ld-form__status.is-done {
+	border-left-color: #2f7a3a;
+	background: #eaf5ec;
+	color: #173404;
+}
+
+.ld-form__status.is-error {
+	border-left-color: var(--mark, #a3271f);
+	background: #f6e6e6;
+	color: #501313;
+}
+
+/* ---- The honeypot ---------------------------------------------------- */
+
+/* Not display:none. Some bots specifically skip fields hidden that way,
+   having learned it is the usual trap. Positioned off-canvas instead, with
+   aria-hidden and tabindex="-1" in the markup so no real reader — sighted,
+   keyboard or screen reader — can reach it. */
+.ld-form-trap,
+.ld-form-trap input {
+	position: absolute !important;
+	left: -9999px !important;
+	width: 1px !important;
+	height: 1px !important;
+	overflow: hidden;
+}
+
+@media print {
+	.ld-form { display: none; }
+}

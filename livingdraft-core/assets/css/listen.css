@@ -1,0 +1,226 @@
+/**
+ * Listen player.
+ *
+ * Written against the theme's custom properties (--paper, --ink, --rule,
+ * --mark, --sans) with a fallback on every one, so the player still looks
+ * deliberate under a theme that defines none of them. That matters more here
+ * than usual: this is plugin CSS, and the plugin's whole reason for existing
+ * is that it has to survive a theme change.
+ *
+ * @package LivingDraftCore
+ * @since 4.2.0
+ */
+
+.ld-listen {
+	margin: 0 0 1.8em;
+	padding: 12px 14px;
+	border: 1px solid var(--rule, #d8d5cc);
+	border-left: 3px solid var(--mark, #a3271f);
+	background: var(--paper-2, #f4f3ee);
+	font-family: var(--sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+	max-width: var(--measure, 68ch);
+}
+
+.ld-listen[hidden] {
+	display: none;
+}
+
+.ld-listen__row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* ---- The play control ------------------------------------------------ */
+
+.ld-listen__play {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 14px;
+	border: 1px solid var(--ink, #111);
+	background: var(--ink, #111);
+	color: var(--paper, #fff);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	border-radius: 2px;
+	flex: none;
+}
+
+.ld-listen__play:hover {
+	opacity: .88;
+}
+
+.ld-listen__play:focus-visible {
+	outline: 2px solid var(--mark, #a3271f);
+	outline-offset: 2px;
+}
+
+/* The icon is drawn in CSS rather than shipped as SVG or an icon font —
+   three states, no extra request, and it inherits currentColor so it is
+   correct in dark mode without a second rule. */
+.ld-listen__icon {
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 6px 0 6px 10px;
+	border-color: transparent transparent transparent currentColor;
+	flex: none;
+}
+
+.ld-listen.is-playing .ld-listen__icon {
+	width: 10px;
+	height: 12px;
+	border: 0;
+	background:
+		linear-gradient(currentColor, currentColor) left / 3px 100% no-repeat,
+		linear-gradient(currentColor, currentColor) right / 3px 100% no-repeat;
+}
+
+.ld-listen__note {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.35;
+	color: var(--ink-3, #63635c);
+	flex: 1 1 auto;
+}
+
+.ld-listen__toggle {
+	border: 1px solid var(--rule, #d8d5cc);
+	background: transparent;
+	color: var(--ink-2, #4a4a45);
+	font: inherit;
+	font-size: 13px;
+	line-height: 1;
+	padding: 7px 9px;
+	cursor: pointer;
+	border-radius: 2px;
+	flex: none;
+}
+
+.ld-listen__toggle[aria-expanded="true"] span[aria-hidden] {
+	display: inline-block;
+	transform: rotate(180deg);
+}
+
+/* ---- Progress -------------------------------------------------------- */
+
+/* Only drawn once playback has started. An empty track sitting under an
+   untouched play button reads as "0% complete", which is a status nobody
+   asked for. */
+.ld-listen__track {
+	height: 2px;
+	margin-top: 12px;
+	background: var(--rule-2, #e6e3da);
+	display: none;
+}
+
+.ld-listen.is-playing .ld-listen__track,
+.ld-listen.is-paused .ld-listen__track {
+	display: block;
+}
+
+.ld-listen__fill {
+	height: 100%;
+	width: 100%;
+	background: var(--mark, #a3271f);
+	transform: scaleX(0);
+	transform-origin: 0 50%;
+	transition: transform .25s linear;
+}
+
+/* ---- Options panel --------------------------------------------------- */
+
+.ld-listen__panel {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--rule-2, #e6e3da);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 18px;
+	align-items: flex-end;
+}
+
+.ld-listen__panel[hidden] {
+	display: none;
+}
+
+.ld-listen__field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 12px;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var(--ink-3, #63635c);
+}
+
+.ld-listen__field select {
+	font: inherit;
+	font-size: 14px;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--ink, #111);
+	background: var(--paper, #fff);
+	border: 1px solid var(--rule, #d8d5cc);
+	border-radius: 2px;
+	padding: 5px 8px;
+	max-width: 240px;
+}
+
+.ld-listen__disclosure {
+	flex: 1 1 100%;
+	margin: 0;
+	font-size: 12.5px;
+	line-height: 1.45;
+	color: var(--ink-3, #63635c);
+}
+
+/* ---- The paragraph being spoken -------------------------------------- */
+
+/* A left rule and a faint wash, not a highlighter. The listener is
+   following along, not being quizzed, and a strong background on a moving
+   target is tiring to sit next to for nine minutes.
+
+   scroll-margin keeps the marked paragraph clear of a sticky masthead if
+   the reader scrolls it into view themselves. Nothing here scrolls the
+   page automatically: taking the scroll position away from someone who is
+   reading ahead of the voice — which is most people, most of the time —
+   is the single most irritating thing a player like this can do. */
+.ld-listen-current {
+	background: color-mix(in srgb, var(--mark, #a3271f) 8%, transparent);
+	box-shadow: -10px 0 0 color-mix(in srgb, var(--mark, #a3271f) 8%, transparent);
+	scroll-margin-top: 90px;
+}
+
+/* Older browsers with no color-mix: fall back to a plain left rule, which
+   is legible everywhere and never produces an unreadable contrast. */
+@supports not (background: color-mix(in srgb, red 8%, transparent)) {
+	.ld-listen-current {
+		background: transparent;
+		box-shadow: -10px 0 0 var(--rule-2, #e6e3da);
+		border-left: 2px solid var(--mark, #a3271f);
+		padding-left: 10px;
+		margin-left: -12px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ld-listen__fill {
+		transition: none;
+	}
+}
+
+@media (max-width: 480px) {
+	.ld-listen__row {
+		flex-wrap: wrap;
+	}
+
+	.ld-listen__note {
+		order: 3;
+		flex-basis: 100%;
+	}
+}

@@ -1,0 +1,1698 @@
+/*
+ * The Living Draft Core — Admin design system
+ * v3.8.0 — "The Desk" edition
+ *
+ * Every plugin admin page loads this. All shared tokens, components,
+ * and utilities live here. Kept scoped to `.tld-admin` so nothing
+ * leaks into other plugins' admin pages.
+ *
+ * =====================================================================
+ * DESIGN PHILOSOPHY
+ *
+ * The wp-admin is the newsroom's back-office. It should feel like the
+ * editor's desk at The Living Draft, not a WordPress dashboard.
+ * That means:
+ *
+ *   • Masthead treatment on every page — with an editorial dateline
+ *   • Editorial typography: Fraunces (variable) for display, Georgia
+ *     fallback, IBM Plex Mono for eyebrows, labels, timestamps, metrics
+ *   • Restrained palette — cream paper, ink, one reddish-brown accent
+ *   • Flat corners (`--tld-radius: 0`), hairline rules, tabular numerals
+ *   • Section-sign watermark, ¶ empty-state glyphs, editor's-note footer
+ *   • Nothing round, nothing loud, no SaaS gradients
+ *
+ * =====================================================================
+ * BACKWARDS COMPATIBILITY
+ *
+ * Every class the plugin was already emitting still works exactly as
+ * before — this file is a *refresh*, not a rewrite. New capabilities
+ * live under new classes (`.tld-numbers`, `.tld-kicker`, `.tld-notice`,
+ * `.tld-subtabs`, `.tld-editor-note`, `.tld-masthead-strip`,
+ * `.tld-section-rule`) that PHP adopts incrementally.
+ * =====================================================================
+ */
+
+/* =====================================================================
+   FRAUNCES DISPLAY FACE — self-hosted, latin, weight axis only
+   ---------------------------------------------------------------------
+   ~82 KB total (normal + italic). No external requests. font-display:
+   swap so the interface never blocks on the font load — Georgia takes
+   over during the fetch and the swap is invisible for most people.
+   ===================================================================== */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../fonts/Fraunces-latin-wght.woff2') format('woff2-variations'),
+       url('../fonts/Fraunces-latin-wght.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../fonts/Fraunces-latin-wght-italic.woff2') format('woff2-variations'),
+       url('../fonts/Fraunces-latin-wght-italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* =====================================================================
+   1. DESIGN TOKENS
+   ===================================================================== */
+
+.tld-admin {
+  /* --- SURFACES ---------------------------------------------------- */
+  --tld-paper:      #f7f4ec;  /* Page background — warmer cream than the old #fafaf7 */
+  --tld-paper-2:    #ede8dc;  /* Deeper cream, for tags, chips, subtle fills */
+  --tld-card:       #ffffff;  /* Cards, panels, the "clipped article" surface */
+  --tld-card-cream: #fbf8f0;  /* Warmer card, for eyebrows and headers inside cards */
+
+  /* --- INK --------------------------------------------------------- */
+  --tld-ink:   #1a1a1a;  /* Primary text */
+  --tld-ink-2: #383634;  /* Secondary text */
+  --tld-ink-3: #75726c;  /* Muted, labels */
+  --tld-ink-4: #a8a49b;  /* Very muted — captions, counts, disabled */
+
+  /* --- RULES ------------------------------------------------------- */
+  --tld-rule:   #cfc9bb;  /* Hairline borders — warmer than the old #d4d4d4 */
+  --tld-rule-2: #e5e0d1;  /* Softer, section dividers */
+
+  /* --- BRAND ACCENT ------------------------------------------------ */
+  --tld-mark:       #8b3a2c;  /* Reddish-brown, matches the frontend */
+  --tld-mark-hover: #6d2e23;
+  --tld-mark-tint:  #f4ede9;  /* Hover / selected background */
+  --tld-link:       #1a4b8c;  /* Editorial blue for inline links */
+
+  /* --- STATUS ---------------------------------------------------- */
+  --tld-good: #2f7a3a;
+  --tld-warn: #b7791f;
+  --tld-bad:  #a32e2e;
+  --tld-info: #1a4b8c;
+
+  --tld-good-bg: #eaf5ec;
+  --tld-warn-bg: #fdf4e3;
+  --tld-bad-bg:  #f6e6e6;
+  --tld-info-bg: #e8eff7;
+
+  /* --- TYPOGRAPHY ------------------------------------------------- */
+  --tld-serif:          "Fraunces", "Georgia", "Times New Roman", serif;
+  --tld-serif-display:  "Fraunces", "Georgia", "Times New Roman", serif;
+  --tld-sans:           -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --tld-mono:           "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* --- SPACING (4px scale) --------------------------------------- */
+  --tld-space-1: 4px;
+  --tld-space-2: 8px;
+  --tld-space-3: 12px;
+  --tld-space-4: 16px;
+  --tld-space-5: 24px;
+  --tld-space-6: 32px;
+  --tld-space-7: 48px;
+  --tld-space-8: 64px;
+
+  /* --- SIZING ---------------------------------------------------- */
+  --tld-radius:      0;   /* Flat, editorial. No rounded corners. */
+  --tld-radius-pill: 999px;
+  --tld-border:      1px solid var(--tld-rule);
+  --tld-border-2:    1px solid var(--tld-rule-2);
+
+  /* --- SHADOWS + MOTION ------------------------------------------ */
+  --tld-shadow-1:    0 1px 2px rgba(20, 20, 20, 0.03), 0 1px 1px rgba(20, 20, 20, 0.02);
+  --tld-shadow-2:    0 4px 12px rgba(20, 20, 20, 0.05), 0 1px 2px rgba(20, 20, 20, 0.03);
+  --tld-shadow-lift: 0 6px 20px rgba(20, 20, 20, 0.07), 0 2px 4px rgba(20, 20, 20, 0.03);
+  --tld-focus-ring:  0 0 0 3px rgba(139, 58, 44, 0.18);
+  --tld-transition:  160ms cubic-bezier(.2, .8, .2, 1);
+}
+
+/* =====================================================================
+   2. RESET + BASE
+   ===================================================================== */
+
+.tld-admin,
+.tld-admin * { box-sizing: border-box; }
+
+/* Horizontal-scroll guard — the .tld-admin wrapper uses negative
+   margins to bleed to the edges of the WP content area, which triggers
+   a body-level horizontal scrollbar on browsers where the vertical bar
+   takes space. overflow-x: hidden here kills it. Scoped to our own
+   pages by the enqueuer. */
+html,
+body.wp-admin { overflow-x: hidden; }
+
+.tld-admin {
+  background: var(--tld-paper);
+  color: var(--tld-ink);
+  font-family: var(--tld-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 0;
+  margin: -10px -20px 0 -20px;
+  min-height: calc(100vh - 32px);
+}
+
+/* Hide WordPress's default h1 wrapper — we render our own masthead */
+.tld-admin h1.wp-heading-inline,
+.tld-admin .wrap > h1:first-of-type { display: none; }
+
+.tld-admin a { color: var(--tld-link); text-decoration: none; }
+.tld-admin a:hover { text-decoration: underline; }
+
+/* =====================================================================
+   3. THE MASTHEAD — top of every page, mirrors the frontend site
+   ===================================================================== */
+
+.tld-header {
+  background: linear-gradient(180deg, var(--tld-card-cream) 0%, var(--tld-card) 100%);
+  border-top: 3px solid var(--tld-mark);
+  border-bottom: 3px double var(--tld-ink);
+  padding: var(--tld-space-5) var(--tld-space-6) var(--tld-space-4);
+  position: relative;
+}
+
+/* Section-sign watermark — a quiet flourish. */
+.tld-header::after {
+  content: '§';
+  position: absolute;
+  top: var(--tld-space-3);
+  right: var(--tld-space-6);
+  font-family: var(--tld-serif-display);
+  font-size: 90px;
+  line-height: 1;
+  color: var(--tld-mark);
+  opacity: 0.08;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Eyebrow strip on the current design — kept for back-compat. */
+.tld-header-strip {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tld-mark);
+  margin-bottom: var(--tld-space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--tld-space-2);
+}
+.tld-header-strip::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--tld-mark);
+}
+
+/*
+ * NEW: full masthead strip — Vol/No · dateline · signed-in-as.
+ * Use ALONGSIDE .tld-header-strip when you want the full newspaper
+ * treatment (Overview and other landing pages).
+ */
+.tld-masthead-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tld-space-4);
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  padding-bottom: var(--tld-space-3);
+  margin-bottom: var(--tld-space-4);
+  border-bottom: 1px solid var(--tld-rule-2);
+  flex-wrap: wrap;
+}
+.tld-masthead-strip .tms-vol   { color: var(--tld-mark); font-weight: 600; letter-spacing: 0.16em; }
+.tld-masthead-strip .tms-mid   { color: var(--tld-ink-2); font-weight: 500; letter-spacing: 0.02em; text-transform: none; font-family: var(--tld-serif); font-style: italic; font-size: 13px; }
+.tld-masthead-strip .tms-right { color: var(--tld-ink-3); }
+.tld-masthead-strip .tms-right b { color: var(--tld-ink); font-weight: 600; }
+
+.tld-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--tld-space-5);
+  flex-wrap: wrap;
+}
+
+.tld-header-title {
+  font-family: var(--tld-serif-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--tld-space-2);
+  color: var(--tld-ink);
+}
+
+.tld-header-desc {
+  color: var(--tld-ink-3);
+  max-width: 65ch;
+  margin: 0;
+  font-size: 14px;
+  font-family: var(--tld-serif);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.tld-header-actions {
+  display: flex;
+  gap: var(--tld-space-3);
+  align-items: center;
+}
+
+/* =====================================================================
+   4. TAB NAV — top-level (Overview / Redirections / SEO / GSC / Settings)
+   ===================================================================== */
+
+.tld-tabs {
+  background: var(--tld-card);
+  border-bottom: 1px solid var(--tld-rule);
+  padding: 0 var(--tld-space-6);
+  display: flex;
+  gap: var(--tld-space-1);
+  margin: 0;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.tld-tabs a {
+  display: block;
+  padding: var(--tld-space-3) var(--tld-space-4);
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--tld-transition), border-color var(--tld-transition), background var(--tld-transition);
+}
+.tld-tabs a:hover {
+  color: var(--tld-ink);
+  background: var(--tld-mark-tint);
+  text-decoration: none;
+}
+.tld-tabs a.is-active {
+  color: var(--tld-mark);
+  border-bottom-color: var(--tld-mark);
+  background: transparent;
+}
+.tld-tabs a:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--tld-mark);
+}
+
+.tld-tabs .tld-tab-count {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--tld-ink-4);
+  font-weight: 400;
+  font-size: 10px;
+}
+.tld-tabs a.is-active .tld-tab-count { color: var(--tld-mark); opacity: 0.65; }
+
+/* =====================================================================
+   4b. SUB-NAV — module-level tabs (Redirects, SEO, SEO Desk)
+   ---------------------------------------------------------------------
+   NEW COMPONENT. Replaces three copies of inline-styled HTML.
+   ===================================================================== */
+
+.tld-subtabs {
+  display: flex;
+  gap: var(--tld-space-5);
+  align-items: center;
+  padding-bottom: var(--tld-space-2);
+  border-bottom: 1px solid var(--tld-rule-2);
+  margin-bottom: var(--tld-space-5);
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  overflow-x: auto;
+}
+.tld-subtabs a {
+  padding: 6px 0;
+  color: var(--tld-ink-3);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -5px;
+  transition: color var(--tld-transition), border-color var(--tld-transition);
+  white-space: nowrap;
+}
+.tld-subtabs a:hover { color: var(--tld-ink); }
+.tld-subtabs a.is-active {
+  color: var(--tld-mark);
+  border-bottom-color: var(--tld-mark);
+}
+.tld-subtabs a .tld-tab-count {
+  color: var(--tld-ink-4);
+  margin-left: 4px;
+  font-size: 10px;
+}
+.tld-subtabs a.is-active .tld-tab-count { color: var(--tld-mark); opacity: 0.65; }
+
+/* =====================================================================
+   5. MAIN CONTENT AREA
+   ===================================================================== */
+
+.tld-main {
+  padding: var(--tld-space-6);
+  max-width: 1400px;
+}
+
+/* =====================================================================
+   6. SECTION RULE — heading with a black bottom rule
+   ===================================================================== */
+
+.tld-section-rule {
+  display: flex;
+  align-items: baseline;
+  gap: var(--tld-space-3);
+  margin: var(--tld-space-2) 0 var(--tld-space-3);
+  padding-bottom: var(--tld-space-2);
+  border-bottom: 1px solid var(--tld-ink);
+}
+.tld-section-rule h2,
+.tld-section-rule .tld-section-title {
+  font-family: var(--tld-serif-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--tld-ink);
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.tld-section-rule .tld-section-eyebrow {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  margin-left: auto;
+}
+
+/* =====================================================================
+   7. CARDS — the workhorse container
+   ===================================================================== */
+
+.tld-card {
+  background: var(--tld-card);
+  border: var(--tld-border);
+  padding: var(--tld-space-5);
+  margin-bottom: var(--tld-space-4);
+  box-shadow: var(--tld-shadow-1);
+  transition: box-shadow var(--tld-transition);
+}
+.tld-card:hover { box-shadow: var(--tld-shadow-2); }
+
+.tld-card.is-cream { background: var(--tld-card-cream); }
+
+.tld-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tld-space-4);
+  padding-bottom: var(--tld-space-3);
+  margin-bottom: var(--tld-space-4);
+  border-bottom: 1px solid var(--tld-rule);
+}
+
+.tld-card-title {
+  font-family: var(--tld-serif-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  margin: 0;
+  color: var(--tld-ink);
+}
+
+.tld-card-eyebrow {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--tld-space-1);
+}
+.tld-card-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  background: var(--tld-mark);
+}
+
+/* =====================================================================
+   8. STAT CARDS — kept for back-compat, polished
+   ===================================================================== */
+
+.tld-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--tld-space-4);
+  margin-bottom: var(--tld-space-6);
+}
+
+.tld-stat {
+  background: var(--tld-card);
+  border: var(--tld-border);
+  padding: var(--tld-space-5);
+  position: relative;
+  box-shadow: var(--tld-shadow-1);
+  transition: box-shadow var(--tld-transition), transform var(--tld-transition), border-color var(--tld-transition);
+  overflow: hidden;
+}
+.tld-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background: var(--tld-mark);
+  opacity: 0.35;
+  transition: opacity var(--tld-transition);
+}
+.tld-stat:hover {
+  box-shadow: var(--tld-shadow-2);
+  transform: translateY(-1px);
+  border-color: var(--tld-ink-3);
+}
+.tld-stat:hover::before { opacity: 1; }
+.tld-stat.is-good::before { background: var(--tld-good); }
+.tld-stat.is-warn::before { background: var(--tld-warn); }
+.tld-stat.is-bad::before  { background: var(--tld-bad); }
+
+.tld-stat-label {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  margin: 0 0 var(--tld-space-2);
+}
+
+.tld-stat-value {
+  font-family: var(--tld-serif-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--tld-ink);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.tld-stat-delta {
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  color: var(--tld-ink-3);
+  margin-top: var(--tld-space-2);
+}
+.tld-stat-delta.is-up   { color: var(--tld-good); }
+.tld-stat-delta.is-down { color: var(--tld-bad); }
+.tld-stat-delta.is-warn { color: var(--tld-warn); }
+.tld-stat-delta strong  { font-weight: 600; }
+
+/* =====================================================================
+   8b. THE NUMBERS — ledger-style stat row
+   ---------------------------------------------------------------------
+   NEW COMPONENT. A single ledger row with hairline internal rules —
+   the "front page circulation figures" look. Used on the Overview
+   dashboard alongside .tld-stats.
+   ===================================================================== */
+
+.tld-numbers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0;
+  background: var(--tld-card);
+  border: 1px solid var(--tld-rule);
+  border-left: 3px solid var(--tld-mark);
+  margin-bottom: var(--tld-space-6);
+  box-shadow: var(--tld-shadow-1);
+}
+.tld-numbers > .tld-num {
+  padding: var(--tld-space-5);
+  border-right: 1px solid var(--tld-rule-2);
+  position: relative;
+}
+.tld-numbers > .tld-num:last-child { border-right: 0; }
+
+.tld-num-label {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  margin: 0 0 var(--tld-space-2);
+}
+.tld-num-value {
+  font-family: var(--tld-serif-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--tld-ink);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.tld-num-delta {
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  color: var(--tld-ink-3);
+  margin-top: var(--tld-space-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tld-num-delta.is-up   { color: var(--tld-good); }
+.tld-num-delta.is-down { color: var(--tld-bad); }
+.tld-num-delta.is-warn { color: var(--tld-warn); }
+.tld-num-delta strong  { font-weight: 600; }
+
+@media (max-width: 720px) {
+  .tld-numbers { grid-template-columns: 1fr; border-left-width: 3px; }
+  .tld-numbers > .tld-num { border-right: 0; border-bottom: 1px solid var(--tld-rule-2); }
+  .tld-numbers > .tld-num:last-child { border-bottom: 0; }
+}
+
+/* =====================================================================
+   9. BUTTONS
+   ===================================================================== */
+
+.tld-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: var(--tld-space-2) var(--tld-space-4);
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border: 1px solid var(--tld-ink);
+  background: var(--tld-card);
+  color: var(--tld-ink);
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.4;
+  box-shadow: var(--tld-shadow-1);
+  transition: all var(--tld-transition);
+}
+.tld-btn:hover {
+  background: var(--tld-ink);
+  color: var(--tld-card);
+  transform: translateY(-1px);
+  box-shadow: var(--tld-shadow-2);
+  text-decoration: none;
+}
+.tld-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--tld-shadow-1);
+}
+.tld-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--tld-shadow-1), var(--tld-focus-ring);
+}
+
+.tld-btn.is-primary {
+  background: var(--tld-mark);
+  border-color: var(--tld-mark);
+  color: #fff;
+}
+.tld-btn.is-primary:hover {
+  background: var(--tld-mark-hover);
+  border-color: var(--tld-mark-hover);
+  color: #fff;
+}
+
+.tld-btn.is-ghost {
+  border-color: var(--tld-rule);
+  color: var(--tld-ink-3);
+  background: transparent;
+  box-shadow: none;
+}
+.tld-btn.is-ghost:hover {
+  border-color: var(--tld-ink);
+  color: var(--tld-ink);
+  background: transparent;
+}
+
+.tld-btn.is-danger {
+  border-color: var(--tld-bad);
+  color: var(--tld-bad);
+  background: var(--tld-card);
+}
+.tld-btn.is-danger:hover {
+  background: var(--tld-bad);
+  color: #fff;
+}
+
+.tld-btn.is-ai {
+  background: linear-gradient(135deg, var(--tld-mark) 0%, var(--tld-mark-hover) 100%);
+  border-color: var(--tld-mark);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.tld-btn.is-ai::before { content: '✦'; font-size: 12px; }
+.tld-btn.is-ai::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 500ms ease;
+  pointer-events: none;
+}
+.tld-btn.is-ai:hover::after { transform: translateX(100%); }
+
+.tld-btn.is-small {
+  padding: 4px 10px;
+  font-size: 10px;
+}
+
+/* =====================================================================
+   10. TABLES — the ledger
+   ===================================================================== */
+
+.tld-table {
+  width: 100%;
+  font-size: 13px;
+  background: var(--tld-card);
+  border: 1px solid var(--tld-rule);
+  border-collapse: separate;
+  border-spacing: 0;
+  box-shadow: var(--tld-shadow-1);
+}
+
+.tld-table th {
+  text-align: left;
+  padding: var(--tld-space-3) var(--tld-space-4);
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  font-weight: 600;
+  border-bottom: 2px solid var(--tld-ink);
+  background: var(--tld-card-cream);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tld-table td {
+  padding: var(--tld-space-4);
+  border-bottom: 1px solid var(--tld-rule-2);
+  vertical-align: top;
+  color: var(--tld-ink-2);
+}
+.tld-table tr:last-child td { border-bottom: none; }
+.tld-table tr:hover td { background: rgba(139, 58, 44, 0.03); }
+
+.tld-table code {
+  font-family: var(--tld-mono);
+  font-size: 12px;
+  color: var(--tld-ink);
+  background: transparent;
+  padding: 0;
+  word-break: break-all;
+}
+
+.tld-table .tld-cell-meta {
+  color: var(--tld-ink-3);
+  font-size: 11px;
+  font-family: var(--tld-mono);
+  margin-top: 3px;
+}
+
+.tld-table .tld-cell-num {
+  font-family: var(--tld-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--tld-ink);
+}
+
+.tld-table .tld-cell-actions {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tld-table .tld-cell-actions a { color: var(--tld-ink-3); text-decoration: none; margin-right: 12px; }
+.tld-table .tld-cell-actions a:hover { color: var(--tld-mark); text-decoration: none; }
+.tld-table .tld-cell-actions .is-danger:hover { color: var(--tld-bad); }
+
+.tld-tag-auto {
+  display: inline-block;
+  font-family: var(--tld-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  background: var(--tld-paper-2);
+  color: var(--tld-ink-3);
+  margin-left: 6px;
+  border: 1px solid var(--tld-rule);
+}
+
+/* WordPress core `.widefat` tables — soften when they land inside our
+   shell (Redirects screen still uses `.widefat striped`). */
+.tld-admin .widefat {
+  border-color: var(--tld-rule);
+  box-shadow: var(--tld-shadow-1);
+  background: var(--tld-card);
+}
+.tld-admin .widefat thead th {
+  background: var(--tld-card-cream);
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  border-bottom: 2px solid var(--tld-ink);
+}
+.tld-admin .widefat td {
+  border-bottom: 1px solid var(--tld-rule-2);
+  color: var(--tld-ink-2);
+}
+.tld-admin .widefat.striped > tbody > :nth-child(odd) { background: transparent; }
+.tld-admin .widefat tr:hover td { background: rgba(139, 58, 44, 0.03); }
+
+/* =====================================================================
+   11. BADGES + PILLS
+   ===================================================================== */
+
+.tld-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: var(--tld-radius-pill);
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.tld-badge.is-good    { background: var(--tld-good-bg); color: var(--tld-good); border-color: rgba(47, 122, 58, 0.2); }
+.tld-badge.is-warn    { background: var(--tld-warn-bg); color: var(--tld-warn); border-color: rgba(183, 121, 31, 0.2); }
+.tld-badge.is-bad     { background: var(--tld-bad-bg);  color: var(--tld-bad);  border-color: rgba(163, 46, 46, 0.2); }
+.tld-badge.is-info    { background: var(--tld-info-bg); color: var(--tld-info); border-color: rgba(26, 75, 140, 0.2); }
+.tld-badge.is-neutral { background: var(--tld-paper-2); color: var(--tld-ink-3); }
+
+.tld-badge::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+  margin-right: 2px;
+}
+
+/* =====================================================================
+   11b. KICKERS — small colored labels
+   ---------------------------------------------------------------------
+   NEW COMPONENT. Newspaper convention: an ALL-CAPS tag before a
+   headline signaling what kind of story it is. Used on the activity
+   feed and on list rows where "kind of thing" matters more than status.
+   ===================================================================== */
+
+.tld-kicker {
+  display: inline-block;
+  font-family: var(--tld-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #fff;
+  background: var(--tld-ink);
+  padding: 2px 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+.tld-kicker.is-mark { background: var(--tld-mark); }
+.tld-kicker.is-warn { background: var(--tld-warn); }
+.tld-kicker.is-good { background: var(--tld-good); }
+.tld-kicker.is-bad  { background: var(--tld-bad); }
+.tld-kicker.is-ghost {
+  background: transparent;
+  color: var(--tld-ink-3);
+  border: 1px solid var(--tld-rule);
+}
+
+/* =====================================================================
+   12. FORMS
+   ===================================================================== */
+
+.tld-field { margin-bottom: var(--tld-space-5); }
+
+.tld-label {
+  display: block;
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  margin-bottom: var(--tld-space-2);
+  font-weight: 600;
+}
+
+.tld-input,
+.tld-select,
+.tld-textarea {
+  width: 100%;
+  max-width: 640px;
+  padding: 10px 12px;
+  font-family: var(--tld-sans);
+  font-size: 14px;
+  color: var(--tld-ink);
+  background: var(--tld-card);
+  border: 1px solid var(--tld-rule);
+  border-radius: var(--tld-radius);
+  box-shadow: inset 0 1px 2px rgba(20, 20, 20, 0.02);
+  transition: border-color var(--tld-transition), box-shadow var(--tld-transition), background var(--tld-transition);
+}
+.tld-input:hover:not(:focus),
+.tld-select:hover:not(:focus),
+.tld-textarea:hover:not(:focus) { border-color: var(--tld-ink-3); }
+
+.tld-input:focus,
+.tld-select:focus,
+.tld-textarea:focus {
+  outline: none;
+  border-color: var(--tld-mark);
+  box-shadow: var(--tld-focus-ring);
+}
+
+.tld-input.is-mono { font-family: var(--tld-mono); font-size: 13px; }
+
+.tld-textarea { min-height: 100px; resize: vertical; line-height: 1.5; }
+
+.tld-help {
+  color: var(--tld-ink-3);
+  font-size: 12px;
+  margin-top: var(--tld-space-2);
+  max-width: 60ch;
+  line-height: 1.5;
+}
+
+.tld-char-counter {
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  color: var(--tld-ink-3);
+  text-align: right;
+  margin-top: 4px;
+}
+.tld-char-counter.is-good { color: var(--tld-good); }
+.tld-char-counter.is-warn { color: var(--tld-warn); }
+.tld-char-counter.is-bad  { color: var(--tld-bad); }
+
+.tld-field-row {
+  display: flex;
+  gap: var(--tld-space-3);
+  align-items: flex-start;
+}
+.tld-field-row .tld-input { flex: 1; }
+
+.form-table.tld-form-table {
+  background: var(--tld-card);
+  border: var(--tld-border);
+  padding: var(--tld-space-3) var(--tld-space-4);
+  box-shadow: var(--tld-shadow-1);
+  border-collapse: collapse;
+}
+.form-table.tld-form-table tr { border-bottom: 1px solid var(--tld-rule-2); }
+.form-table.tld-form-table tr:last-child { border-bottom: none; }
+
+/* =====================================================================
+   13. SIDEBAR NAV — for Settings hub layouts
+   ===================================================================== */
+
+.tld-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--tld-space-6);
+  align-items: start;
+}
+
+.tld-sidebar {
+  position: sticky;
+  top: var(--tld-space-4);
+}
+
+.tld-sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: var(--tld-border);
+  background: var(--tld-card);
+  box-shadow: var(--tld-shadow-1);
+}
+
+.tld-sidebar-nav li { border-bottom: var(--tld-border-2); }
+.tld-sidebar-nav li:last-child { border-bottom: 0; }
+
+.tld-sidebar-nav a {
+  display: block;
+  padding: var(--tld-space-3) var(--tld-space-4);
+  color: var(--tld-ink-2);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  transition: all var(--tld-transition);
+}
+.tld-sidebar-nav a:hover {
+  background: rgba(139, 58, 44, 0.03);
+  color: var(--tld-ink);
+  border-left-color: rgba(139, 58, 44, 0.3);
+  text-decoration: none;
+}
+.tld-sidebar-nav a.is-active {
+  border-left-color: var(--tld-mark);
+  color: var(--tld-mark);
+  background: rgba(139, 58, 44, 0.06);
+  font-weight: 500;
+}
+
+.tld-sidebar-nav .tld-nav-eyebrow {
+  padding: var(--tld-space-3) var(--tld-space-4) var(--tld-space-2);
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  background: transparent;
+  border-bottom: 1px solid var(--tld-rule);
+  font-weight: 600;
+}
+
+/* =====================================================================
+   14. SEO ANALYSIS PANEL — score + checklist
+   ===================================================================== */
+
+.tld-seo-score {
+  display: flex;
+  align-items: center;
+  gap: var(--tld-space-4);
+  padding: var(--tld-space-4);
+  background: var(--tld-card-cream);
+  border: var(--tld-border);
+  margin-bottom: var(--tld-space-4);
+}
+
+.tld-seo-score-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tld-serif-display);
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  border: 3px solid;
+}
+.tld-seo-score-circle.is-good { border-color: var(--tld-good); color: var(--tld-good); }
+.tld-seo-score-circle.is-warn { border-color: var(--tld-warn); color: var(--tld-warn); }
+.tld-seo-score-circle.is-bad  { border-color: var(--tld-bad);  color: var(--tld-bad); }
+
+.tld-seo-score-text { flex: 1; }
+.tld-seo-score-title {
+  font-family: var(--tld-serif-display);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: var(--tld-ink);
+}
+.tld-seo-score-subtitle {
+  color: var(--tld-ink-3);
+  font-size: 13px;
+  margin: 0;
+}
+
+.tld-checklist { list-style: none; padding: 0; margin: 0; }
+.tld-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tld-space-3);
+  padding: var(--tld-space-3) 0;
+  border-bottom: var(--tld-border-2);
+}
+.tld-checklist li:last-child { border-bottom: 0; }
+
+.tld-check-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+.tld-check-icon.is-good { background: var(--tld-good); }
+.tld-check-icon.is-warn { background: var(--tld-warn); }
+.tld-check-icon.is-bad  { background: var(--tld-bad); }
+
+.tld-check-text { flex: 1; font-size: 13px; color: var(--tld-ink-2); }
+.tld-check-text strong { color: var(--tld-ink); font-weight: 600; }
+.tld-check-detail { color: var(--tld-ink-3); font-size: 12px; margin-top: 2px; }
+.tld-check-detail a {
+  color: var(--tld-mark);
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+.tld-check-detail a:hover { border-bottom: 1px solid var(--tld-mark); text-decoration: none; }
+
+/* =====================================================================
+   15. SERP PREVIEW
+   ===================================================================== */
+
+.tld-serp {
+  background: #fff;
+  border: var(--tld-border);
+  padding: var(--tld-space-4) var(--tld-space-5);
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+}
+.tld-serp-url { color: #202124; font-size: 12px; margin: 0 0 2px; }
+.tld-serp-url .tld-serp-domain { color: #5f6368; }
+.tld-serp-title {
+  color: #1a0dab;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 4px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.tld-serp-title:hover { text-decoration: underline; }
+.tld-serp-desc {
+  color: #4d5156;
+  font-size: 14px;
+  line-height: 1.58;
+  margin: 0;
+}
+
+/* =====================================================================
+   16. EMPTY STATES
+   ===================================================================== */
+
+.tld-empty {
+  text-align: center;
+  padding: var(--tld-space-6) var(--tld-space-4);
+  color: var(--tld-ink-3);
+}
+.tld-empty::before {
+  content: '¶';
+  display: block;
+  font-family: var(--tld-serif-display);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--tld-mark);
+  opacity: 0.2;
+  margin-bottom: var(--tld-space-3);
+}
+.tld-empty-title {
+  font-family: var(--tld-serif-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--tld-ink-2);
+  margin: 0 0 var(--tld-space-2);
+}
+.tld-empty-desc {
+  font-size: 13px;
+  max-width: 40ch;
+  margin: 0 auto var(--tld-space-4);
+  color: var(--tld-ink-3);
+  line-height: 1.6;
+}
+
+/* =====================================================================
+   17. ACTIVITY FEED — the wire
+   ===================================================================== */
+
+.tld-activity { list-style: none; padding: 0; margin: 0; }
+
+.tld-activity li {
+  display: flex;
+  gap: var(--tld-space-3);
+  padding: var(--tld-space-3) 0;
+  border-bottom: 1px solid var(--tld-rule-2);
+  font-size: 13px;
+  transition: background var(--tld-transition);
+  margin: 0 calc(var(--tld-space-3) * -1);
+  padding-left: var(--tld-space-3);
+  padding-right: var(--tld-space-3);
+}
+.tld-activity li:last-child { border-bottom: none; }
+.tld-activity li:hover { background: rgba(139, 58, 44, 0.02); }
+
+.tld-activity-time {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tld-ink-3);
+  min-width: 90px;
+  padding-top: 3px;
+  padding-left: 10px;
+  border-left: 2px solid var(--tld-rule);
+}
+.tld-activity-time.is-mark {
+  border-left-color: var(--tld-mark);
+  color: var(--tld-mark);
+}
+
+.tld-activity-text { flex: 1; color: var(--tld-ink-2); }
+.tld-activity-text strong {
+  font-family: var(--tld-serif-display);
+  color: var(--tld-ink);
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 2px;
+  letter-spacing: -0.005em;
+}
+.tld-activity-text code {
+  font-family: var(--tld-mono);
+  font-size: 12px;
+  background: var(--tld-paper-2);
+  padding: 1px 5px;
+  color: var(--tld-ink);
+}
+.tld-activity-text a {
+  color: var(--tld-mark);
+  text-decoration: none;
+  border-bottom: 1px solid var(--tld-mark);
+}
+.tld-activity-text a:hover { background: var(--tld-mark-tint); text-decoration: none; }
+
+/* =====================================================================
+   18. TWO-COLUMN LAYOUT
+   ===================================================================== */
+
+.tld-two-col {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--tld-space-6);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .tld-two-col,
+  .tld-layout { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   19. NOTICES — matching the design system
+   ---------------------------------------------------------------------
+   NEW COMPONENT. Replaces WordPress-core `.notice notice-success`
+   markup for plugin-owned notices, so messages sit inside the
+   editorial shell instead of breaking out of it.
+   ===================================================================== */
+
+.tld-notice {
+  padding: 12px 18px;
+  background: var(--tld-card);
+  border: 1px solid var(--tld-rule);
+  border-left: 3px solid var(--tld-good);
+  margin-bottom: var(--tld-space-4);
+  font-size: 13px;
+  color: var(--tld-ink-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--tld-shadow-1);
+}
+.tld-notice::before {
+  content: 'FILED';
+  font-family: var(--tld-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  padding: 3px 6px;
+  background: var(--tld-good-bg);
+  color: var(--tld-good);
+  flex-shrink: 0;
+}
+.tld-notice.is-warn        { border-left-color: var(--tld-warn); }
+.tld-notice.is-warn::before  { content: 'NOTE';  background: var(--tld-warn-bg); color: var(--tld-warn); }
+.tld-notice.is-bad         { border-left-color: var(--tld-bad); }
+.tld-notice.is-bad::before   { content: 'STOP';  background: var(--tld-bad-bg);  color: var(--tld-bad); }
+.tld-notice.is-info        { border-left-color: var(--tld-info); }
+.tld-notice.is-info::before  { content: 'MEMO';  background: var(--tld-info-bg); color: var(--tld-info); }
+
+/* Soften WP-core notices that land inside our shell. */
+.tld-admin .notice {
+  background: var(--tld-card);
+  border-left: 3px solid var(--tld-ink-3);
+  box-shadow: var(--tld-shadow-1);
+  padding: 10px 14px;
+}
+.tld-admin .notice-success { border-left-color: var(--tld-good); }
+.tld-admin .notice-warning { border-left-color: var(--tld-warn); }
+.tld-admin .notice-error   { border-left-color: var(--tld-bad); }
+.tld-admin .notice-info    { border-left-color: var(--tld-info); }
+
+/* =====================================================================
+   20. EDITOR'S NOTE — closing strip on every page
+   ---------------------------------------------------------------------
+   NEW COMPONENT. Italic quote left, mono strapline right. Mirrors the
+   frontend site footer.
+   ===================================================================== */
+
+.tld-editor-note {
+  border-top: 1px solid var(--tld-rule);
+  margin-top: var(--tld-space-7);
+  padding-top: var(--tld-space-4);
+  font-family: var(--tld-serif);
+  font-style: italic;
+  color: var(--tld-ink-3);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--tld-space-4);
+  flex-wrap: wrap;
+}
+.tld-editor-note .ten-quote::before {
+  content: '\201C';
+  color: var(--tld-mark);
+  font-size: 24px;
+  margin-right: 4px;
+  vertical-align: -6px;
+}
+.tld-editor-note .ten-copy {
+  font-family: var(--tld-mono);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-ink-4);
+}
+
+/* =====================================================================
+   21. ANIMATION
+   ===================================================================== */
+
+@keyframes tld-fadeup {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tld-admin .tld-stat,
+.tld-admin .tld-num,
+.tld-admin .tld-card {
+  animation: tld-fadeup 320ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.tld-stats  .tld-stat:nth-child(1),
+.tld-numbers .tld-num:nth-child(1)  { animation-delay: 0ms; }
+.tld-stats  .tld-stat:nth-child(2),
+.tld-numbers .tld-num:nth-child(2)  { animation-delay: 60ms; }
+.tld-stats  .tld-stat:nth-child(3),
+.tld-numbers .tld-num:nth-child(3)  { animation-delay: 120ms; }
+.tld-stats  .tld-stat:nth-child(4),
+.tld-numbers .tld-num:nth-child(4)  { animation-delay: 180ms; }
+.tld-stats  .tld-stat:nth-child(5),
+.tld-numbers .tld-num:nth-child(5)  { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tld-admin *,
+  .tld-admin *::before,
+  .tld-admin *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* =====================================================================
+   22. DARK MODE (future-proofing)
+   ===================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Reserved. WP-admin doesn't honor dark mode natively. */
+}
+
+/* =====================================================================
+   23. FORM AND ROW COMPONENTS  (4.4.0)
+
+   Added when Mail, Listen, Redirections and Fact check were brought off
+   WordPress's form-table and onto this system. Every rule here replaces
+   markup that was previously core WP: .form-table, .widefat, .button,
+   .regular-text. Those still work inside .tld-admin — the overrides in
+   section 11 soften them — but a screen built from them will always look
+   like a different product than one built from .tld-card and .tld-btn,
+   because it is.
+   ===================================================================== */
+
+/* ---- Field groups ---------------------------------------------------
+   .tld-fields is a plain stack. .tld-grid-2 pairs fields on wide screens
+   and collapses below 900px, which is where two 300px inputs plus the
+   WP sidebar stop fitting.
+   -------------------------------------------------------------------- */
+.tld-fields > .tld-field:last-child { margin-bottom: 0; }
+
+.tld-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--tld-space-5);
+}
+.tld-grid-2 > .tld-field { min-width: 0; }
+
+/* ---- Checkboxes -----------------------------------------------------
+   WP renders a bare checkbox with the label text as a sibling text node,
+   which gives no hit target beyond the box itself. Wrapping in a flex
+   label makes the whole line clickable — the single highest-value
+   accessibility fix in this file, and it costs four rules.
+   -------------------------------------------------------------------- */
+.tld-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tld-space-2);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tld-ink-2);
+  cursor: pointer;
+  padding: 3px 0;
+}
+.tld-check input[type="checkbox"] { margin: 2px 0 0; flex: none; }
+.tld-check:hover { color: var(--tld-ink); }
+.tld-check--tight { margin-top: var(--tld-space-2); font-size: 12px; }
+
+.tld-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 2px var(--tld-space-4);
+}
+
+/* ---- Buttons in a row ----------------------------------------------- */
+.tld-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tld-space-3);
+  margin: var(--tld-space-4) 0 0;
+}
+
+.tld-inline-status {
+  font-size: 12px;
+  color: var(--tld-ink-3);
+  font-family: var(--tld-mono);
+}
+.tld-inline-status.is-bad { color: var(--tld-bad); }
+
+.tld-unit {
+  font-size: 12px;
+  color: var(--tld-ink-3);
+  font-family: var(--tld-mono);
+  white-space: nowrap;
+}
+
+.tld-help.is-bad { color: var(--tld-bad); }
+
+/* ---- The drafting panel ---------------------------------------------
+   Visually separated from the form it writes into, because "this button
+   will overwrite the box above" should be legible before it is pressed
+   rather than after.
+   -------------------------------------------------------------------- */
+.tld-panel {
+  border: var(--tld-border);
+  background: var(--tld-card-cream);
+  padding: var(--tld-space-4);
+  margin: var(--tld-space-5) 0;
+}
+.tld-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--tld-space-2) var(--tld-space-3);
+}
+.tld-panel-title {
+  font-family: var(--tld-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tld-mark);
+}
+.tld-panel-note { font-size: 12px; color: var(--tld-ink-3); }
+.tld-panel .tld-btn-row { margin-top: var(--tld-space-3); }
+
+.tld-suggestions:empty { display: none; }
+.tld-suggestions { margin-top: var(--tld-space-3); }
+
+/* ---- Send bar -------------------------------------------------------
+   The irreversible action gets its own strip with a heavier top rule, so
+   it never sits in the same visual group as Save.
+   -------------------------------------------------------------------- */
+.tld-send-bar {
+  margin-top: var(--tld-space-5);
+  padding-top: var(--tld-space-4);
+  border-top: 2px solid var(--tld-ink);
+}
+
+/* ---- Rows -----------------------------------------------------------
+   A list of records that is not tabular. Newsletters have a title, a
+   date, a progress reading and a state — four fields, only two of which
+   every row has. A table would render two empty columns on most rows.
+   -------------------------------------------------------------------- */
+.tld-rows { list-style: none; margin: 0; padding: 0; }
+
+.tld-row {
+  display: flex;
+  align-items: center;
+  gap: var(--tld-space-3);
+  padding: var(--tld-space-3) 0;
+  border-bottom: var(--tld-border-2);
+}
+.tld-row:last-child { border-bottom: 0; }
+.tld-row:hover { background: rgba(139, 58, 44, 0.02); }
+
+.tld-row-main { flex: 1 1 auto; min-width: 0; }
+
+.tld-row-title {
+  display: block;
+  font-size: 14px;
+  color: var(--tld-ink);
+  text-decoration: none;
+  line-height: 1.35;
+}
+.tld-row-title:hover { color: var(--tld-mark); text-decoration: none; }
+
+.tld-row-meta {
+  margin: 2px 0 0;
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  color: var(--tld-ink-4);
+}
+
+.tld-row-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--tld-space-2);
+  flex: none;
+}
+
+.tld-row-actions { flex: none; }
+.tld-row-actions form { display: inline; }
+
+/* ---- Meter ----------------------------------------------------------
+   A 72px rule, not a percentage label. "912 of 1,284" answers how many;
+   the rule answers how far, which is the question someone watching a
+   send is actually asking.
+   -------------------------------------------------------------------- */
+.tld-meter {
+  display: block;
+  width: 72px;
+  height: 3px;
+  background: var(--tld-paper-2);
+  flex: none;
+}
+.tld-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--tld-mark);
+  transition: width var(--tld-transition);
+}
+
+.tld-figure {
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  color: var(--tld-ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tld-figure.is-bad { color: var(--tld-bad); }
+
+/* ---- Settings rail body --------------------------------------------- */
+.tld-settings-body { min-width: 0; }
+.tld-settings-body > .tld-card:first-child { margin-top: 0; }
+
+/* =====================================================================
+   24. RESPONSIVE  (4.4.0)
+
+   The plugin had four media queries across 1,300 lines, which meant the
+   two-column layouts and the stat row simply overflowed on anything
+   narrower than a laptop. WP's own admin sidebar takes 160px of that,
+   and collapses to 36px at 960px — so the breakpoints below are chosen
+   against the CONTENT width that leaves, not the viewport.
+   ===================================================================== */
+
+@media (max-width: 960px) {
+  .tld-layout {
+    grid-template-columns: 1fr;
+    gap: var(--tld-space-4);
+  }
+
+  /* The settings rail becomes a horizontal scroller rather than a
+     240px column stacked above the content — a vertical list of six
+     links pushes the actual form below the fold on a tablet. */
+  .tld-sidebar { position: static; }
+  .tld-sidebar-nav {
+    display: flex;
+    overflow-x: auto;
+    border-left: 0;
+    border-right: 0;
+  }
+  .tld-sidebar-nav li { border-bottom: 0; border-right: var(--tld-border-2); }
+  .tld-sidebar-nav li:last-child { border-right: 0; }
+  .tld-sidebar-nav .tld-nav-eyebrow { display: none; }
+  .tld-sidebar-nav a {
+    white-space: nowrap;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+  }
+  .tld-sidebar-nav a.is-active {
+    border-left: 0;
+    border-bottom-color: var(--tld-mark);
+  }
+
+  .tld-grid-2 { grid-template-columns: 1fr; }
+  .tld-two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 782px) {
+  .tld-admin { margin: 0; padding: var(--tld-space-4) 0; }
+
+  .tld-header-row { flex-direction: column; align-items: flex-start; gap: var(--tld-space-3); }
+  .tld-header-title { font-size: 30px; }
+
+  .tld-numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* Subtabs scroll rather than wrap. A wrapped nav changes height
+     between pages, which moves the content under the pointer. */
+  .tld-subtabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tld-subtabs a { white-space: nowrap; }
+
+  /* Rows go two-line: title above, everything else below. */
+  .tld-row { flex-wrap: wrap; }
+  .tld-row-main { flex-basis: 100%; }
+
+  .tld-input, .tld-select, .tld-textarea {
+    /* 16px stops iOS Safari zooming the viewport on focus. */
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .tld-numbers { grid-template-columns: 1fr; }
+
+  /* A four-column table cannot be made to fit; let it scroll inside its
+     card instead of forcing the page sideways. */
+  .tld-table-scroll { overflow-x: auto; }
+  .tld-card { padding: var(--tld-space-4); }
+  .tld-btn-row { gap: var(--tld-space-2); }
+  .tld-btn-row .tld-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+@media print {
+  .tld-subtabs,
+  .tld-sidebar,
+  .tld-btn,
+  .tld-header-actions { display: none; }
+  .tld-card { border: 1px solid #999; box-shadow: none; }
+}
+
+/* ---- Message body (4.5.0) -------------------------------------------
+   Reader text, so it is set in the reading serif rather than the UI sans,
+   and pre-wrap because people put line breaks in messages and losing them
+   changes how the message reads.
+   -------------------------------------------------------------------- */
+.tld-message-body {
+  font-family: var(--tld-serif);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--tld-ink);
+  white-space: pre-wrap;
+  padding: var(--tld-space-4);
+  margin: var(--tld-space-4) 0;
+  background: var(--tld-card-cream);
+  border-left: 3px solid var(--tld-ink);
+}
+
+.tld-row.is-open { background: var(--tld-mark-tint); }
+
+/* ---- Credential state (4.6.0) ---------------------------------------
+   Sits directly under the key field and says what is stored without
+   showing it. The colour carries the verdict; the text carries what to
+   do about it, because "invalid" on its own is where most people get
+   stuck.
+   -------------------------------------------------------------------- */
+.tld-keystate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--tld-space-2);
+  margin: var(--tld-space-2) 0 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-left: 3px solid var(--tld-rule);
+  background: var(--tld-paper-2);
+  color: var(--tld-ink-2);
+}
+.tld-keystate code {
+  font-family: var(--tld-mono);
+  font-size: 11px;
+  background: transparent;
+  color: var(--tld-ink-3);
+  padding: 0;
+}
+.tld-keystate--ok            { border-left-color: var(--tld-good); background: var(--tld-good-bg); color: var(--tld-good); }
+.tld-keystate--odd           { border-left-color: var(--tld-warn); background: var(--tld-warn-bg); color: #6b4a12; }
+.tld-keystate--wrong_type,
+.tld-keystate--undecryptable { border-left-color: var(--tld-bad);  background: var(--tld-bad-bg);  color: #6d2020; }
+
+.tld-inline-status.is-good { color: var(--tld-good); }
+.tld-inline-status.is-warn { color: var(--tld-warn); }
+
+/* A finding can be a paragraph, so it wraps rather than running off. */
+.ld-mail-verify-out {
+  flex: 1 1 220px;
+  white-space: normal;
+  line-height: 1.5;
+}
