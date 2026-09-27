@@ -1,0 +1,10 @@
+{
+  "plugin": {
+    "version": "4.6.0",
+    "download": "https://github.com/iamcjayesh519-max/thelivingdraft-updates/releases/download/plugin-v4.6.0/livingdraft-core.zip",
+    "requires": "6.2",
+    "requires_php": "8.2",
+    "tested": "6.9",
+    "changelog": "<p>Release notes: <a href=\"https://github.com/iamcjayesh519-max/thelivingdraft-updates/releases/tag/plugin-v4.6.0\">plugin-v4.6.0</a></p>"
+  }
+}
