@@ -1,0 +1,1861 @@
+/*
+Theme Name: The Living Draft
+Theme URI: https://thelivingdraft.com
+Author: The Living Draft
+Description: A printed-broadsheet news theme. Serif throughout, three rule weights, a dateline strip, a drop cap on the lead and column dividers between stories. Records what changed on a story after it ran. No jQuery, no Bootstrap, no icon fonts, no webfonts, no external requests.
+Version: 4.1.0
+Requires at least: 6.2
+Tested up to: 6.9
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: livingdraft
+Tags: news, blog, magazine, two-columns, right-sidebar, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready, block-patterns, editor-style, rtl-language-support
+*/
+
+/* ============================================================
+   1. Tokens
+   Three rule weights, and nothing else divides anything:
+   3px double for major breaks, 1px solid ink for section
+   heads, a hairline within a block.
+   ============================================================ */
+
+:root {
+  --paper:      #fdfdfb;
+  --paper-2:    #f4f3ee;
+  --ink:        #111111;
+  --ink-2:      #4a4a45;
+  --ink-3:      #63635c;
+  --rule:       #d8d5cc;
+  --rule-2:     #e6e3da;
+  --mark:       #a3271f;
+  --link:       #1b3f7a;
+
+  --serif: Georgia, "Iowan Old Style", "Times New Roman", Times, serif;
+  --sans:  "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Fluid, not fixed. A fixed width looks fine at 100% zoom and leaves half
+     the screen empty at 80%, because zooming out gives the page MORE css
+     pixels, not fewer. Filling a share of the window fixes that at every
+     zoom level and on every monitor. */
+  --wrap: min(94vw, 2100px);
+  --rail: 300px;
+  --measure: 68ch;
+  --base: 17px;
+  --display: var(--serif);
+
+  /* Featured images are cut 1200x628 — the share-card frame. */
+  --frame: 1200 / 628;
+}
+
+/* ------------------------------------------------------------------
+   Dark.
+
+   Written twice on purpose. The <html> element always carries a
+   data-scheme attribute of light, dark or auto:
+
+     [data-scheme="dark"]  the reader asked for dark. Applies always,
+                           whatever their device says.
+     [data-scheme="auto"]  the reader has not asked. Follow the device.
+     [data-scheme="light"] the reader asked for light. Nothing below
+                           matches, so the light tokens at the top of
+                           this file stand.
+
+   CSS has no way to share one declaration block between two selectors
+   without a preprocessor, and this theme has no build step, so the
+   token list appears in both places. If you edit one, edit the other.
+
+   These selectors are html[...], which outranks the bare :root used by
+   the Customizer's colour overrides. That is deliberate: a light-mode
+   palette chosen in Customizer must not bleed into dark mode and
+   produce grey text on a black page.
+   ------------------------------------------------------------------ */
+
+html[data-scheme="dark"] {
+  color-scheme: dark;
+  --paper:   #12120f;
+  --paper-2: #1a1a16;
+  --ink:     #ece9e1;
+  --ink-2:   #b5b1a6;
+  --ink-3:   #98948a;
+  --rule:    #34332c;
+  --rule-2:  #26251f;
+  --mark:    #e0776a;
+  --link:    #9db8e8;
+}
+
+html[data-scheme="light"] {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-scheme="auto"] {
+    color-scheme: dark;
+    --paper:   #12120f;
+    --paper-2: #1a1a16;
+    --ink:     #ece9e1;
+    --ink-2:   #b5b1a6;
+    --ink-3:   #98948a;
+    --rule:    #34332c;
+    --rule-2:  #26251f;
+    --mark:    #e0776a;
+    --link:    #9db8e8;
+  }
+}
+
+/* ------------------------------------------------------------------
+   The reader's control, in the masthead beside search.
+
+   Three radio inputs. The input itself is hidden from sight but stays
+   in the accessibility tree and remains focusable, so keyboard and
+   screen-reader users get the real thing rather than a lookalike.
+   ------------------------------------------------------------------ */
+
+.scheme-control fieldset {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  align-items: center;
+}
+
+.scheme-control input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.scheme-control label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  min-height: 30px;
+  cursor: pointer;
+  color: var(--ink-3);
+  line-height: 0;
+}
+
+.scheme-control label:hover {
+  color: var(--ink);
+}
+
+.scheme-control input:checked + label {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+/* The focus ring must sit on the label, since the input it belongs to
+   is visually hidden and would draw the ring nowhere. */
+.scheme-control input:focus-visible + label {
+  outline: 2px solid var(--mark);
+  outline-offset: 2px;
+}
+
+/* Below the navigation breakpoint the control moves into the drawer,
+   where there is room for it to sit on its own line. */
+@media (max-width: 899px) {
+  .scheme-control {
+    padding: 10px 0 2px;
+  }
+}
+
+/* Hairlines disappear for some readers; give them ink instead. */
+@media (prefers-contrast: more) {
+  :root {
+    --ink-2:  var(--ink);
+    --ink-3:  var(--ink);
+    --rule:   var(--ink);
+    --rule-2: var(--ink);
+  }
+}
+
+/* ============================================================
+   2. Reset and base
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--base);
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, video, iframe { max-width: 100%; height: auto; display: block; }
+img { background: var(--paper-2); }
+
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.14;
+  margin: 0 0 .4em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+p { margin: 0 0 .95em; }
+
+blockquote {
+  margin: 1.7em 0;
+  padding: 14px 0 14px 20px;
+  border-left: 3px double var(--ink);
+  font-size: 1.06em;
+  font-style: italic;
+  color: var(--ink-2);
+}
+blockquote cite {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+code, pre, kbd { font-family: var(--mono); font-size: .88em; }
+pre { background: var(--paper-2); padding: 16px; overflow-x: auto; }
+
+hr { border: 0; border-top: 3px double var(--ink); margin: 2em 0; }
+
+table { border-collapse: collapse; width: 100%; font-size: .95em; }
+th, td { border: 1px solid var(--rule); padding: 8px 10px; text-align: left; }
+th {
+  font-family: var(--mono); font-size: .72em; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em;
+}
+
+/* Wide tables scroll inside their own box instead of stretching the page. */
+.table-scroll { overflow-x: auto; margin-bottom: 1.05em; }
+.table-scroll table { margin-bottom: 0; min-width: 32em; }
+
+.screen-reader-text {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--ink); color: var(--paper);
+  padding: 12px 18px; z-index: 999;
+  font-family: var(--mono); font-size: 12px;
+}
+.skip-link:focus { left: 0; }
+
+/* ---- Reading progress -----------------------------------------------
+   Fixed to the top of the viewport, 3px, no background track. A track
+   would draw a permanent hairline across the masthead of every story;
+   the fill alone reads as a moving rule, which is quieter and says the
+   same thing.
+
+   scaleX rather than width: width changes are laid out and painted,
+   transforms are composited, and this element updates on scroll.
+
+   z-index sits just under .skip-link (999) so a keyboard user tabbing
+   in still gets the skip target over the top of it.
+   -------------------------------------------------------------------- */
+.reading-progress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px; z-index: 998;
+  pointer-events: none;
+  background: transparent;
+}
+.reading-progress__bar {
+  height: 100%; width: 100%;
+  background: var(--mark);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+/* The bar is decoration for a sighted reader mid-scroll. On paper, and
+   for anyone who has asked for less movement, it is noise. */
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress { display: none; }
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+/* Grid children must be allowed to shrink, or one long word scrolls the page. */
+.front > *, .layout > *, .cols > *, .footer-grid > *, .story > * { min-width: 0; }
+
+/* The mono furniture line. Every timestamp, kicker and label on the page is
+   set in this one voice, and never below 11px. */
+.stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: baseline;
+  margin: 0 0 7px;
+}
+.stamp .kicker { color: var(--mark); font-weight: 600; }
+.stamp .sep { color: var(--rule); }
+.stamp .live { color: var(--mark); border: 1px solid currentColor; padding: 1px 5px; }
+
+/* ============================================================
+   3. Masthead, dateline, navigation
+   ============================================================ */
+
+/* The rule belongs to the full-width shell, so every band on the page —
+   masthead, dateline, navigation, index — draws its line edge to edge. */
+.masthead-shell { border-bottom: 1px solid var(--ink); }
+.dateline-shell { border-bottom: 3px double var(--ink); }
+
+.masthead {
+  padding: 18px 0 10px;
+  text-align: center;
+}
+.masthead-side {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.7;
+}
+.masthead-side .edition-social {
+  display: inline-flex;
+  gap: 14px;
+  margin-left: 12px;
+  vertical-align: -3px;
+}
+.edition-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px; min-height: 24px;
+  color: var(--ink-3);
+}
+.edition-social a:hover { color: var(--mark); }
+.edition-social svg { width: 16px; height: 16px; fill: currentColor; }
+
+.masthead-title {
+  font-size: clamp(28px, 6.6vw, 54px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+.masthead-title a:hover { text-decoration: none; }
+.masthead .custom-logo { margin: 0 auto; max-height: 74px; width: auto; }
+
+.dateline {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 8px 0;
+  color: var(--ink-3);
+}
+.dateline .sep { color: var(--rule); margin: 0 8px; }
+
+.nav-shell { border-bottom: 1px solid var(--ink); background: var(--paper); }
+.nav-shell .wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.menu-toggle,
+.search-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.menu-toggle svg, .search-toggle svg {
+  width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6;
+}
+.search-toggle { min-width: 44px; justify-content: flex-end; }
+.nav-search { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.nav-panel { display: none; padding: 4px 0 14px; border-top: 1px solid var(--rule); width: 100%; }
+.nav-panel.is-open { display: block; }
+
+.primary-menu { list-style: none; margin: 0; padding: 0; }
+.primary-menu li { position: relative; }
+.primary-menu a {
+  display: block;
+  padding: 11px 0;
+  font-size: 16px;
+}
+.primary-menu a[aria-current] { color: var(--mark); }
+.primary-menu .sub-menu {
+  list-style: none; margin: 0; padding: 0 0 6px 16px;
+  border-left: 1px solid var(--rule);
+}
+.primary-menu .sub-menu a { padding: 9px 0; font-size: 15px; color: var(--ink-2); }
+
+.search-drawer { display: none; padding: 10px 0 14px; border-top: 1px solid var(--rule); }
+.search-drawer.is-open { display: block; }
+
+.index-strip {
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.index-strip::-webkit-scrollbar { display: none; }
+.index-strip .wrap {
+  display: flex; gap: 16px; align-items: center;
+  min-height: 38px; white-space: nowrap;
+}
+.index-strip .label { color: var(--mark); font-weight: 600; flex: none; }
+.index-strip a { color: var(--ink-3); }
+.index-strip a:hover { color: var(--ink); }
+
+/* ============================================================
+   4. Breadcrumbs and page heads
+   ============================================================ */
+
+.breadcrumbs {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 16px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+.breadcrumbs .sep { color: var(--rule); }
+.breadcrumbs a:hover { color: var(--ink); }
+
+.front-head { padding: 18px 0 0; }
+.front-title {
+  font-size: clamp(26px, 5vw, 38px);
+  line-height: 1.1;
+  margin: 0 0 10px;
+}
+.front-standfirst {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--ink-2);
+  margin: 0 0 10px;
+  max-width: 58ch;
+}
+.front-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 14px;
+  border-bottom: 3px double var(--ink);
+}
+.author-head { display: grid; gap: 18px; }
+.author-head .author-avatar { border-radius: 0; }
+
+/* ============================================================
+   5. The front: lead column and the brief rail
+   ============================================================ */
+
+.front { display: grid; gap: 26px; padding-top: 22px; }
+
+.kicker-line {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mark);
+  margin-bottom: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Editorial labels: what kind of writing this is, not what it is about. */
+.label {
+  border: 1px solid currentColor;
+  padding: 1px 6px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.label-opinion, .label-analysis { color: var(--link); }
+.label-sponsored { color: var(--ink); background: var(--paper-2); }
+
+.lede-title {
+  font-size: clamp(26px, 5.6vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0 0 10px;
+}
+.lede-deck {
+  font-size: 17px;
+  font-style: italic;
+  color: var(--ink-2);
+  margin: 0 0 11px;
+  max-width: 56ch;
+}
+
+.byline {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 9px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+}
+.byline a { color: var(--ink-2); }
+.byline .revised { color: var(--mark); }
+
+.figure-well { margin: 0 0 16px; }
+
+/*
+ * Render the featured image at its intrinsic (srcset-selected) pixel size
+ * rather than stretching to fill the article column. On desktop, the browser
+ * picks a variant like 768w or 1024w based on the sizes hint in single.php,
+ * and fit-content lets that variant display at its natural size — no
+ * blurring, no scaling artifacts.
+ *
+ * Mobile (below 900px) keeps 100% so the image is full-bleed on phones.
+ *
+ * On desktop the customizer's Article page section can override sizing via
+ * three CSS vars, each with a sensible default:
+ *   --lede-max-height  letterbox crop when set
+ *   --lede-margin      left / centre / right within the container
+ */
+.figure-well img { width: 100%; height: auto; display: block; }
+
+@media (min-width: 900px) {
+  .figure-well img {
+    /* Explicit pixel width/height overrides (desktop only, from Customizer
+       → Article page). When --lede-width-px is set, it takes precedence over
+       fit-content and the % control. When --lede-height-px is set, the image
+       is cropped to exactly that height via object-fit: cover. Both default
+       to unset so mobile/tablet always show natural sizing.
+
+       Priority order for width:
+         --lede-width-px (fixed px)  →  --lede-width (%)  →  fit-content
+    */
+    width: var(--lede-width-px, var(--lede-width, fit-content));
+    max-width: 100%;
+    height: var(--lede-height-px, auto);
+    max-height: var(--lede-max-height, none);
+    object-fit: cover;
+    object-position: center;
+    margin: var(--lede-margin, 0);
+  }
+}
+.figure-well figcaption,
+.caption {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  padding: 6px 0 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.teaser p { margin: 0 0 .95em; }
+.has-dropcap .teaser > p:first-of-type::first-letter,
+.has-dropcap.single-post .entry-content > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: .84;
+  padding: 4px 8px 0 0;
+  font-weight: 700;
+}
+.read-on {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mark);
+  padding: 6px 0;
+}
+
+.rail { border-top: 3px double var(--ink); padding-top: 12px; }
+.rail-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 6px;
+  margin: 0 0 12px;
+}
+.brief + .rail-head { margin-top: 20px; }
+
+.brief { padding-bottom: 11px; margin-bottom: 11px; border-bottom: 1px solid var(--rule-2); }
+.brief-title { font-size: 16px; font-weight: 700; line-height: 1.25; margin: 0 0 4px; }
+.brief-excerpt { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; margin: 0; }
+.brief.is-revised .brief-title::before,
+.story.is-revised .story-title::before {
+  content: "";
+  display: inline-block;
+  width: 7px; height: 7px;
+  margin-right: 8px;
+  vertical-align: 2px;
+  background: var(--mark);
+}
+
+.rail-signup { margin-top: 22px; }
+.rail-signup p { font-size: 15px; color: var(--ink-2); }
+
+/* ============================================================
+   6. Section heads and the column grid
+   ============================================================ */
+
+.section-block { margin-top: 22px; }
+.section-block + .section-block { margin-top: 30px; }
+.section-rule { border-top: 3px double var(--ink); }
+.section-head {
+  font-size: 22px;
+  padding: 12px 0 10px;
+  border-bottom: 1px solid var(--ink);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+.section-head .count {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex: none;
+}
+
+.cols { display: grid; gap: 22px; }
+.col-item .thumb { margin-bottom: 10px; }
+.col-title { font-size: 19px; line-height: 1.2; margin: 0 0 7px; }
+.col-excerpt { font-size: 15px; color: var(--ink-2); margin: 0; }
+.col-item .stamp { margin-top: 8px; margin-bottom: 0; }
+
+.thumb {
+  display: block;
+  position: relative;
+  aspect-ratio: var(--frame);
+  overflow: hidden;
+  background: var(--paper-2);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb:hover img { opacity: .93; }
+
+/* ============================================================
+   7. Story rows — search, author pages, paged listings
+   ============================================================ */
+
+.story-list { display: grid; gap: 0; }
+
+.story {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.story .thumb { aspect-ratio: var(--frame); }
+.story-title { font-size: 20px; line-height: 1.2; margin: 0 0 6px; }
+.story .excerpt { color: var(--ink-2); font-size: 15px; margin: 0; max-width: var(--measure); }
+
+/* A pinned story carries the paper's own marker. */
+.story.sticky .story-title::after,
+.sticky .entry-title::after {
+  content: "★";
+  color: var(--mark);
+  font-size: .6em;
+  vertical-align: 6px;
+  margin-left: 8px;
+}
+
+/* ============================================================
+   8. The update log — what changed after the story ran
+   ============================================================ */
+
+.update-log {
+  border-top: 3px double var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 12px 0 4px;
+  margin: 0 0 20px;
+}
+.update-log-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+}
+.update-list { list-style: none; margin: 0; padding: 0; }
+.update-item { padding: 0 0 10px; margin-bottom: 10px; border-bottom: 1px solid var(--rule-2); }
+.update-item:last-child { border-bottom: 0; }
+.update-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.update-kind { color: var(--ink-2); font-weight: 600; }
+.update-correction .update-kind { color: var(--mark); }
+.update-note { margin: 0; font-size: 16px; }
+
+/* ============================================================
+   9. Sidebar and widgets
+   ============================================================ */
+
+.sidebar { font-size: 16px; }
+.widget { margin: 0 0 28px; }
+.widget:last-child { margin-bottom: 0; }
+.widget-title,
+.widget h2,
+.widget h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--ink);
+  margin: 0 0 12px;
+}
+.widget ul, .widget ol { list-style: none; margin: 0; padding: 0; }
+.widget li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.widget li:last-child { border-bottom: 0; }
+.widget .sub-menu, .widget .children {
+  border-left: 1px solid var(--rule);
+  padding-left: 12px;
+  margin-top: 6px;
+}
+.widget .wp-block-latest-posts__post-date,
+.widget .wp-block-latest-comments__comment-date,
+.widget .post-date {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+.widget .wp-block-tag-cloud a,
+.widget .tag-cloud-link {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px !important;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule);
+  padding: 5px 9px;
+  margin: 0 4px 6px 0;
+  color: var(--ink-2);
+}
+.widget .wp-calendar-table { font-size: 14px; }
+.widget .wp-calendar-nav {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.search-form { display: flex; border: 1px solid var(--ink); }
+.search-form input[type="search"] {
+  flex: 1; min-width: 0; border: 0; background: transparent; color: inherit;
+  padding: 11px 12px;
+  font-family: var(--serif);
+  /* 16px, or iOS zooms the whole page on focus. */
+  font-size: 16px;
+}
+.search-form input[type="search"]:focus { outline: none; }
+.search-form button {
+  border: 0; background: var(--ink); color: var(--paper); cursor: pointer;
+  padding: 0 18px; min-height: 44px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .14em; text-transform: uppercase;
+}
+
+/* ============================================================
+   10. Single story, pages, author box
+   ============================================================ */
+
+.layout { padding: 22px 0 40px; display: grid; gap: 34px; }
+
+.entry-header { margin-bottom: 4px; }
+.entry-title {
+  font-size: clamp(28px, 5.6vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+  margin: 0 0 12px;
+}
+.entry-standfirst {
+  font-size: 19px;
+  font-style: italic;
+  color: var(--ink-2);
+  margin: 0 0 14px;
+  max-width: 58ch;
+}
+
+.entry-content { font-size: 17.5px; line-height: 1.68; }
+.entry-content > * { margin-bottom: 1.05em; max-width: var(--measure); }
+.entry-content h2 {
+  font-size: 25px;
+  margin-top: 1.6em;
+  padding-top: 10px;
+  border-top: 1px solid var(--ink);
+}
+.entry-content h3 { font-size: 20px; margin-top: 1.4em; }
+.entry-content a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.entry-content ul, .entry-content ol { padding-left: 22px; }
+.entry-content li { margin-bottom: .45em; }
+.entry-content figure { margin: 1.6em 0; }
+.entry-content p, .entry-content li { overflow-wrap: break-word; }
+
+/* Wide blocks fill the ruled column; running text keeps its measure. */
+.entry-content > .alignwide,
+.entry-content > .alignfull,
+.entry-content > .wp-block-table,
+.entry-content > .table-scroll,
+.entry-content > .wp-block-gallery,
+.entry-content > .wp-block-columns,
+.entry-content > .wp-block-embed { max-width: none; }
+.alignfull { width: 100%; }
+
+.entry-content figcaption,
+.wp-caption-text,
+.gallery-caption,
+.blocks-gallery-item__caption {
+  font-family: var(--mono); font-size: 11px; line-height: 1.5; color: var(--ink-3);
+  padding-top: 7px; border-bottom: 1px solid var(--rule); padding-bottom: 9px;
+}
+.wp-caption { max-width: 100%; }
+.wp-caption img { width: 100%; }
+
+.alignleft { float: left; margin: 0 22px 14px 0; max-width: 50%; }
+.alignright { float: right; margin: 0 0 14px 22px; max-width: 50%; }
+.aligncenter { margin-left: auto; margin-right: auto; }
+
+.entry-tags {
+  margin: 30px 0 0; padding-top: 12px; border-top: 3px double var(--ink);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--ink-3);
+  /* Bound to roughly the paragraph reading width so the border-top doesn't
+     stretch across the full content-col and visually collide with the
+     sidebar's border-left at wide viewports or low browser zoom.
+     rem (not ch) because this element's font-size is 11px — using --measure
+     directly would compute in that smaller context and cap the bar at ~411px
+     instead of matching the paragraph's ~730px. */
+  max-width: 46rem;
+}
+.entry-tags a { border: 1px solid var(--rule); padding: 5px 9px; color: var(--ink-2); }
+.entry-tags a:hover { border-color: var(--mark); color: var(--mark); text-decoration: none; }
+
+.author-box {
+  display: grid;
+  gap: 16px;
+  margin: 30px 0 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  /* Same reasoning as .entry-tags — 46rem ≈ paragraph reading width so the
+     border rules stay inside the reading column instead of extending across
+     the full content-col and colliding with the sidebar's border at extreme
+     zoom-out. */
+  max-width: 46rem;
+}
+.author-box .author-avatar { border-radius: 0; }
+.author-name { font-size: 20px; margin: 0 0 6px; }
+.author-bio { font-size: 16px; color: var(--ink-2); margin: 0 0 8px; max-width: 60ch; }
+
+.post-nav { display: grid; gap: 0; margin: 30px 0 0; border-top: 1px solid var(--ink); max-width: 46rem; }
+.post-nav a { padding: 16px 0; display: block; border-bottom: 1px solid var(--rule); }
+.post-nav a:hover { text-decoration: none; }
+.post-nav a:hover .t { text-decoration: underline; }
+.post-nav .dir {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--mark); display: block; margin-bottom: 5px;
+}
+.post-nav .t { font-size: 17px; line-height: 1.25; }
+
+/* ============================================================
+   11. Block styles
+   ============================================================ */
+
+.wp-block-button__link {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 14px 22px;
+}
+.is-style-outline .wp-block-button__link {
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
+}
+
+.wp-block-separator { border: 0; border-top: 1px solid var(--rule); margin: 2em auto; }
+.wp-block-separator.is-style-double-rule { border-top: 3px double var(--ink); max-width: none; }
+
+.wp-block-pullquote {
+  border-top: 3px double var(--ink);
+  border-bottom: 3px double var(--ink);
+  padding: 22px 0;
+  text-align: left;
+}
+.wp-block-pullquote p { font-size: 1.3em; font-style: italic; }
+.wp-block-pullquote cite {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; font-style: normal; color: var(--ink-3);
+}
+
+.wp-block-quote.is-style-brief {
+  border-left: 0;
+  border-top: 3px double var(--ink);
+  border-bottom: 3px double var(--ink);
+  padding: 16px 0;
+  font-size: 1em;
+}
+
+.wp-block-group.is-style-fact-box {
+  border: 1px solid var(--ink);
+  padding: 18px 20px;
+  background: var(--paper-2);
+}
+.wp-block-group.is-style-fact-box > :last-child { margin-bottom: 0; }
+.wp-block-group.is-style-fact-box h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 6px;
+  margin: 0 0 12px;
+}
+
+.wp-block-group.is-style-correction {
+  border-left: 3px solid var(--mark);
+  padding: 12px 0 12px 16px;
+  font-size: 16px;
+}
+.wp-block-group.is-style-correction > :last-child { margin-bottom: 0; }
+
+.wp-block-image.is-style-framed img { border: 1px solid var(--ink); }
+
+.wp-block-list.is-style-ruled { list-style: none; padding-left: 0; }
+.wp-block-list.is-style-ruled li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.wp-block-list.is-style-ruled li:last-child { border-bottom: 0; }
+
+.wp-block-columns { gap: 22px; }
+.wp-block-media-text { margin-bottom: 1.05em; }
+.wp-block-cover { border-radius: 0; }
+.wp-block-code { background: var(--paper-2); border: 1px solid var(--rule); }
+.wp-block-embed figcaption { text-align: left; }
+
+.ld-standfirst { font-size: 1.1em; color: var(--ink-2); }
+
+/* ============================================================
+   12. Comments
+   ============================================================ */
+
+.comments-area { margin: 40px 0 0; }
+.comments-title, .comment-reply-title {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 400;
+  border-bottom: 1px solid var(--ink); padding-bottom: 6px; margin: 0 0 16px;
+}
+.comment-list { list-style: none; margin: 0; padding: 0; }
+.comment-list ol.children { list-style: none; padding-left: 20px; border-left: 1px solid var(--rule); }
+.comment-body { padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.comment-item.bypostauthor > .comment-body { border-left: 3px solid var(--mark); padding-left: 14px; }
+.comment-meta {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px;
+}
+.comment-actions {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; margin-top: 8px;
+}
+.comment-actions a { color: var(--mark); display: inline-block; padding: 6px 0; }
+
+.comments-pagination {
+  margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.comments-pagination .page-numbers {
+  display: inline-block; padding: 10px 14px; border: 1px solid var(--rule);
+}
+.comments-pagination .page-numbers.current { background: var(--ink); color: var(--paper); }
+
+.comment-form input[type="text"], .comment-form input[type="email"],
+.comment-form input[type="url"], .comment-form textarea {
+  width: 100%; padding: 11px 12px; border: 1px solid var(--rule);
+  background: var(--paper); color: inherit; font-family: var(--serif); font-size: 16px;
+}
+.comment-form label {
+  display: block; font-family: var(--mono); font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; color: var(--ink-3);
+}
+.comment-form p { margin-bottom: 14px; }
+.comment-form .submit, .btn {
+  background: var(--ink); color: var(--paper); border: 0; cursor: pointer;
+  padding: 14px 22px; min-height: 44px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .14em; text-transform: uppercase; display: inline-block;
+}
+.btn:hover { text-decoration: none; opacity: .88; }
+
+/* ============================================================
+   13. Pagination, 404, footer
+   ============================================================ */
+
+.pagination {
+  margin: 28px 0 0; padding-top: 14px; border-top: 3px double var(--ink);
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+}
+.pagination .page-numbers {
+  display: inline-block; padding: 11px 15px; border: 1px solid var(--rule);
+}
+.pagination .page-numbers:hover { border-color: var(--ink); text-decoration: none; }
+.pagination .page-numbers.current { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.page-links { border-top: 1px solid var(--rule); }
+
+.notfound { padding: 56px 0; text-align: center; }
+.notfound .code {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--mark); margin-bottom: 14px;
+}
+.notfound h1 { font-size: clamp(28px, 6vw, 44px); }
+.notfound p { color: var(--ink-2); max-width: 48ch; margin: 0 auto 22px; }
+.notfound .search-form { max-width: 420px; margin: 0 auto; }
+
+.site-footer {
+  border-top: 3px double var(--ink);
+  margin-top: 44px;
+  padding: 28px 0 36px;
+}
+.footer-grid { display: grid; gap: 26px; }
+.footer-brand .site-title { font-size: 24px; margin: 0 0 6px; }
+.footer-brand p {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+.footer-menu { list-style: none; margin: 0; padding: 0; column-count: 2; column-gap: 24px; }
+.footer-menu li { break-inside: avoid; padding: 6px 0; }
+.footer-menu a { font-size: 15px; color: var(--ink-2); }
+.colophon {
+  margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3);
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
+}
+
+/* ============================================================
+   14. Breakpoints — 600, 900, 1100 and nothing else
+   ============================================================ */
+
+@media (min-width: 600px) {
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 0 10px;
+    text-align: left;
+  }
+  .masthead-side { flex: 0 1 20%; padding-bottom: 6px; }
+  .masthead-side.is-right { text-align: right; }
+  .masthead-side .edition-social { display: flex; margin: 5px 0 0; }
+  .masthead-side.is-right .edition-social { justify-content: flex-end; }
+  .masthead-title { flex: 1 1 auto; text-align: center; }
+
+  .story { grid-template-columns: 180px 1fr; gap: 20px; }
+
+  .cols { grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .col-item { padding: 0 22px; border-left: 1px solid var(--rule); }
+  .col-item:nth-child(2n+1) { padding-left: 0; border-left: 0; }
+  .col-item:nth-child(2n) { padding-right: 0; }
+
+  .author-head { grid-template-columns: 128px 1fr; align-items: start; }
+  .author-box { grid-template-columns: 96px 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .post-nav { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
+
+@media (min-width: 900px) {
+  .menu-toggle { display: none; }
+  .nav-panel { display: block; border-top: 0; padding: 0; width: auto; }
+  .nav-shell .wrap { position: relative; justify-content: center; flex-wrap: nowrap; }
+  .primary-menu { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; }
+  .primary-menu a { padding: 13px 0; }
+  .primary-menu .sub-menu {
+    position: absolute; top: 100%; left: -14px; z-index: 50;
+    min-width: 210px; background: var(--paper);
+    border: 1px solid var(--ink); border-top: 3px double var(--ink);
+    padding: 6px 14px; visibility: hidden; opacity: 0;
+    transition: opacity .12s ease;
+  }
+  .primary-menu li:hover > .sub-menu,
+  .primary-menu li:focus-within > .sub-menu { visibility: visible; opacity: 1; }
+  .nav-search { position: absolute; right: 18px; margin-left: 0; }
+
+  .front { grid-template-columns: 1.75fr 1fr; gap: 34px; align-items: start; }
+  .front.is-full { grid-template-columns: 1fr; }
+  .rail {
+    border-top: 0;
+    border-left: 1px solid var(--ink);
+    padding-left: 22px;
+    padding-top: 0;
+  }
+
+  .cols { grid-template-columns: repeat(3, 1fr); }
+  .col-item:nth-child(2n+1) { padding-left: 22px; border-left: 1px solid var(--rule); }
+  .col-item:nth-child(2n) { padding-right: 22px; }
+  .col-item:nth-child(3n+1) { padding-left: 0; border-left: 0; }
+  .col-item:nth-child(3n) { padding-right: 0; }
+
+  /*
+   * Layout grid — every dimension now driven by customizer tokens:
+   *   --content-max  (Page layout → Article width)
+   *   --rail         (Page layout → Sidebar width, % or px)
+   *   --content-gap  (Page layout → Gap between article and sidebar)
+   *   --sidebar-order (Page layout → Sidebar position: left/right)
+   *
+   * Defaults preserve current visual: 800px content, 300px sidebar,
+   * 44px gap, sidebar on the right.
+   *
+   * When sidebar position is "hidden", body.ld-no-sidebar is added by
+   * livingdraft_body_classes() and the single-column rule below wins.
+   *
+   * When sidebar position is "left", body.ld-sidebar-left swaps the grid
+   * track order so the sidebar's own column stays 300px (not 800px) and
+   * the article's column stays 800px (not 300px) — a simple `order: -1`
+   * on the item would leave items in swapped tracks and shrink the article.
+   */
+  .layout {
+    grid-template-columns: minmax(0, var(--content-max, 50rem)) var(--rail);
+    gap: var(--content-gap, 44px);
+    /* Force layout to shrink to its content width instead of stretching to
+       fill the wrap. With `width: fit-content`, the grid becomes exactly
+       (content + gap + sidebar) wide — no leftover space to distribute
+       anywhere. Then `margin: 0 auto` centers the layout inside the wrap,
+       putting any wrap-excess as equal margin on both sides.
+       Belt-and-braces `justify-content: start` catches any browser edge
+       case where fit-content still allows track distribution. */
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    justify-content: start;
+  }
+  .layout .sidebar {
+    border-left: 1px solid var(--ink);
+    padding-left: 24px;
+  }
+  /* Sidebar on left: swap grid tracks AND place items in reversed columns
+     so each still occupies its natural width. grid-row:1 forces both into
+     the same row — without it, the sidebar can slip to row 2 because of
+     auto-placement heuristics interacting with other layout rules. */
+  body.ld-sidebar-left .layout {
+    grid-template-columns: var(--rail) minmax(0, var(--content-max, 50rem));
+  }
+  body.ld-sidebar-left .layout > .content-col { grid-column: 2; grid-row: 1; }
+  body.ld-sidebar-left .layout > .sidebar     { grid-column: 1; grid-row: 1; }
+  body.ld-sidebar-left .layout .sidebar {
+    border-left: 0;
+    border-right: 1px solid var(--ink);
+    padding-left: 0;
+    padding-right: 24px;
+  }
+  /* Sidebar hidden or explicit no-rail body class: single-column layout. */
+  body.no-rail .layout,
+  body.ld-no-sidebar .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.ld-no-sidebar .sidebar { display: none; }
+
+  /* Columns, not a grid. Widgets flow down one column and into the next, so
+     a short one never leaves a tall empty box behind it. */
+  .standing .sidebar {
+    column-count: 3;
+    column-gap: 44px;
+    column-rule: 1px solid var(--rule);
+  }
+  .standing .widget { break-inside: avoid; margin: 0 0 30px; }
+
+  .lede-title { font-size: 40px; }
+}
+
+@media (min-width: 1100px) {
+  .entry-content { font-size: calc(var(--base) + 0.5px); }
+}
+
+/* Floats need room; below 600px they only make ragged lines. */
+@media (max-width: 599px) {
+  .alignleft, .alignright {
+    float: none;
+    margin: 0 0 14px;
+    max-width: 100%;
+  }
+  /*
+   * Sidebar mobile behaviour (customizer: Page layout → Sidebar on mobile).
+   * body.ld-mobile-sidebar-hidden hides the sidebar entirely on phones.
+   * body.ld-mobile-sidebar-drawer will hide inline and require a "Sections"
+   * button to reveal it — Phase 3 will wire the button; for now the drawer
+   * class also hides it inline so nothing visually breaks.
+   */
+  body.ld-mobile-sidebar-hidden .sidebar,
+  body.ld-mobile-sidebar-drawer .sidebar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .nav-shell, .index-strip, .sidebar, .site-footer, .post-nav,
+  .edition-social, .breadcrumbs, .read-next, .rail-signup, .comments-area,
+  .reading-progress, .ld-listen { display: none; }
+  body { font-size: 11pt; background: #fff; color: #000; }
+  .entry-content > * { max-width: none; }
+  .front { display: block; }
+}
+
+/* ============================================================
+   15. The latest-stories strip
+   Swipe, trackpad, arrow keys or the buttons. Nothing moves
+   on its own — an auto-rotating slider is the fastest way to
+   slow a news homepage down.
+   ============================================================ */
+
+.strip { margin-top: 26px; }
+.strip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.strip-head .section-head { flex: 1; margin-bottom: 12px; }
+.strip-controls { display: flex; gap: 8px; flex: none; padding-bottom: 10px; }
+.strip-controls button {
+  width: 44px; height: 44px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.strip-controls button:hover:not(:disabled) { border-color: var(--ink); }
+.strip-controls button:disabled { opacity: .3; cursor: default; }
+
+.strip-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 74%;
+  gap: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  overscroll-behavior-x: contain;
+}
+.strip-rail::-webkit-scrollbar { display: none; }
+.slide { scroll-snap-align: start; min-width: 0; }
+.slide .thumb { margin-bottom: 10px; }
+.slide-title { font-size: 18px; line-height: 1.22; margin: 0; }
+
+/* ============================================================
+   16. Latest / Popular / Trending
+   ============================================================ */
+
+.tabbed { margin-top: 30px; }
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: 1px solid var(--ink);
+  margin: 12px 0 14px;
+}
+.tab {
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  padding: 11px 18px 9px 0;
+  margin-right: 22px;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.tab.is-on { color: var(--mark); border-bottom-color: var(--mark); }
+.tab:hover { color: var(--ink); }
+
+.ranked { list-style: none; margin: 0; padding: 0; counter-reset: rank; }
+.ranked-item { border-bottom: 1px solid var(--rule-2); }
+.ranked-item:last-child { border-bottom: 0; }
+.ranked-link { display: flex; gap: 16px; align-items: baseline; padding: 11px 0; }
+.ranked-link:hover { text-decoration: none; }
+.ranked-link:hover .ranked-title { text-decoration: underline; text-underline-offset: 3px; }
+.ranked-no::before {
+  counter-increment: rank;
+  content: counter(rank, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--mark);
+  flex: none;
+}
+.ranked-text { min-width: 0; }
+.ranked-title { display: block; font-size: 17px; line-height: 1.28; }
+.ranked-meta {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+.tabpanel[hidden] { display: none; }
+
+/* ============================================================
+   17. Newsletter band and footer
+   ============================================================ */
+
+.signup-bar {
+  border-top: 3px double var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper-2);
+  padding: 26px 0;
+  margin-top: 44px;
+}
+.signup-inner { display: grid; gap: 20px; align-items: center; }
+.signup-title { font-size: 26px; margin: 0 0 6px; }
+.signup-blurb { color: var(--ink-2); margin: 0; font-size: 16px; max-width: 46ch; }
+
+.signup-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start; }
+.signup-form input[type="email"] {
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: inherit;
+  padding: 13px 14px;
+  font-family: var(--serif);
+  font-size: 16px;
+  min-width: 0;
+}
+.signup-form button {
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  cursor: pointer;
+  padding: 0 24px;
+  min-height: 48px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.signup-form button:disabled { opacity: .5; cursor: default; }
+/* Hidden from people, still filled in by bots. Clipped rather than pushed
+   off-screen: a big negative offset can create a horizontal scrollbar. */
+.signup-trap {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.signup-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  min-height: 1em;
+}
+.signup-note.is-good { color: var(--ink-2); }
+.signup-note.is-bad { color: var(--mark); }
+
+.footer-logo img { max-height: 54px; width: auto; margin: 0 0 10px; }
+.footer-strap {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 12px;
+}
+.footer-social { display: flex; gap: 16px; }
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--ink-3);
+}
+.footer-social a:hover { color: var(--mark); }
+.footer-social svg { width: 18px; height: 18px; fill: currentColor; }
+
+.footer-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--ink);
+  margin: 0 0 12px;
+}
+
+@media (min-width: 600px) {
+  .signup-inner { grid-template-columns: 1fr 1fr; gap: 34px; }
+}
+
+@media (min-width: 900px) {
+  .strip-rail { grid-auto-columns: 26%; }
+  .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; gap: 44px; }
+  .signup-inner { grid-template-columns: 1fr 460px; }
+}
+
+/* Sections list: the busiest few, with the rest one click away. Everything
+   stays in the HTML, so a crawler still finds every section. */
+.ld-more-sections { margin-top: 10px; }
+.ld-more-sections > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--mark);
+  padding: 8px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.ld-more-sections > summary::-webkit-details-marker { display: none; }
+.ld-more-sections > summary::after { content: " +"; margin-left: 6px; }
+.ld-more-sections[open] > summary::after { content: " \2212"; }
+.ld-sections .post-count { color: var(--ink-3); font-family: var(--mono); font-size: 11px; }
+
+/* ============================================================
+   PHASE 3 EXTRAS — homepage layout, card style, category cards
+   ============================================================
+
+   Four Customizer controls under Front page drive the classes below:
+     livingdraft_homepage_layout    → body.ld-home-{grid|list|masonry}
+     livingdraft_card_style         → body.ld-card-{compact|standard|prominent}
+     livingdraft_pagination_style   → body.ld-pagination-{numbered|load-more|infinite}
+     livingdraft_category_card_style → body.ld-catcard-{uniform|varied}
+
+   Default is grid + standard + numbered + uniform — matches the theme's
+   original behaviour, so a fresh install looks identical.
+*/
+
+
+/* ---- Homepage layout: List ---- */
+
+/*
+ * Turn the story grid into stacked rows with image on the left, text on
+ * the right. Reads like a search-results page. Works from tablet up;
+ * mobile keeps the natural stack (already one column via .cols default).
+ */
+@media (min-width: 700px) {
+  body.ld-home-list .cols {
+    display: block;
+  }
+  body.ld-home-list .col-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 22px;
+    padding: 18px 0;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  body.ld-home-list .col-item:first-child { border-top: 0; padding-top: 0; }
+  body.ld-home-list .col-item .thumb { margin: 0; }
+  body.ld-home-list .col-item .thumb img {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+  }
+}
+
+
+/* ---- Homepage layout: Masonry (CSS columns approach) ---- */
+
+/*
+ * CSS multi-column masonry — zero JavaScript, but items flow top-to-bottom
+ * in each column (not across-then-down like a grid). That's the trade-off:
+ * lightweight and fast, but the visual reading order is different from a
+ * grid. The default number of visual columns matches the grid (3 on
+ * desktop, 2 on tablet).
+ */
+@media (min-width: 700px) {
+  body.ld-home-masonry .cols {
+    display: block;
+    column-count: 2;
+    column-gap: 22px;
+  }
+  body.ld-home-masonry .col-item {
+    break-inside: avoid;
+    display: block;
+    padding: 0 0 22px;
+    margin-bottom: 22px;
+    border-left: 0;
+    border-bottom: 1px solid var(--rule);
+    /* Prevent column-break awkwardness for cards with images */
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+@media (min-width: 900px) {
+  body.ld-home-masonry .cols { column-count: 3; }
+}
+
+
+/* ---- Card style: Compact ---- */
+
+/*
+ * Compact = image gets smaller and moves inline, less vertical space per
+ * card. Density-first — good for readers who want to scan more headlines
+ * per screen.
+ */
+body.ld-card-compact .col-item {
+  padding-bottom: 8px;
+}
+body.ld-card-compact .col-item .thumb img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+body.ld-card-compact .col-title {
+  font-size: 17px;
+  line-height: 1.3;
+}
+body.ld-card-compact .col-excerpt {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+
+/* ---- Card style: Prominent ---- */
+
+/*
+ * Prominent = larger image, larger title, more breathing room. Fewer
+ * cards fit per screen but each one commands more attention. Magazine
+ * feature-page feel.
+ */
+body.ld-card-prominent .col-item {
+  padding-bottom: 24px;
+  margin-bottom: 12px;
+}
+body.ld-card-prominent .col-item .thumb img {
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+body.ld-card-prominent .col-title {
+  font-size: 24px;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+body.ld-card-prominent .col-excerpt {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+
+/* ---- Category card: Varied ---- */
+
+/*
+ * On archive pages (category, tag, author, date), the first story card
+ * spans both/all columns for a "lead of the section" effect. Rest of the
+ * cards keep their grid position. Works with all three homepage layouts.
+ *
+ * Body class is only added on archive templates (see functions.php filter),
+ * so this rule can never accidentally fire on a single post or the front.
+ */
+@media (min-width: 700px) {
+  body.ld-catcard-varied .col-item.is-first {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 24px 0;
+    border-left: 0;
+    border-bottom: 3px double var(--ink);
+    margin-bottom: 24px;
+  }
+  body.ld-catcard-varied .col-item.is-first .thumb {
+    margin: 0;
+    order: -1;
+  }
+  body.ld-catcard-varied .col-item.is-first .thumb img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+  }
+  body.ld-catcard-varied .col-item.is-first .col-title {
+    font-size: 32px;
+    line-height: 1.15;
+  }
+  body.ld-catcard-varied .col-item.is-first .col-excerpt {
+    font-size: 17px;
+    line-height: 1.55;
+    max-width: 40em;
+  }
+  /* In masonry mode, break out of the column flow for the lead card. */
+  body.ld-home-masonry.ld-catcard-varied .col-item.is-first {
+    column-span: all;
+  }
+}
+
+
+/* ---- Pagination: Load More button styling ----
+
+   Numbered pagination uses the existing .pagination rules.
+   Load More uses <button.ld-load-more> emitted by livingdraft_pagination().
+   Infinite Scroll uses the same button but PHP+JS click it automatically
+   when the user scrolls near the bottom (no separate CSS needed).
+*/
+.ld-load-more {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 32px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity .15s ease;
+}
+.ld-load-more:hover { opacity: .85; }
+.ld-load-more:disabled { opacity: .5; cursor: wait; }
+.ld-load-more.is-done { display: none; }
+
+/* ============================================================
+   Story timeline
+
+   The rest of a running story, at the foot of an article. A
+   single hairline rule down the left with a marker per entry —
+   the printed-page equivalent of a timeline, using the same
+   three rule weights as everything else rather than inventing
+   a fourth.
+   ============================================================ */
+
+.story-timeline { margin: 42px 0 0; }
+
+.story-timeline .tl-strap {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 10px 0 20px;
+}
+
+.tl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 22px;
+  border-left: 1px solid var(--rule);
+}
+
+.tl-item {
+  position: relative;
+  padding: 0 0 18px 0;
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 4px 14px;
+  align-items: baseline;
+}
+
+.tl-item:last-child { padding-bottom: 0; }
+
+/* The marker sits on the rule itself, so it reads as a point on
+   a line rather than a bullet beside one. */
+.tl-marker {
+  position: absolute;
+  left: -27px;
+  top: 7px;
+  width: 9px;
+  height: 9px;
+  background: var(--paper);
+  border: 1px solid var(--ink-3);
+  border-radius: 50%;
+}
+
+.tl-item.is-current .tl-marker {
+  background: var(--mark);
+  border-color: var(--mark);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mark) 20%, transparent);
+}
+
+/* color-mix is not in every browser this theme supports. Without
+   it the ring is simply absent and the filled marker still reads
+   as current, so no fallback is needed. */
+
+.tl-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: .02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tl-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--link);
+  text-decoration: none;
+}
+
+a.tl-title:hover { text-decoration: underline; }
+
+.tl-item.is-current .tl-title {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.tl-here {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--sans);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--mark);
+  white-space: nowrap;
+}
+
+/* The folded middle of a long story. */
+.tl-fold { position: relative; padding-bottom: 18px; }
+
+.tl-fold summary {
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+  padding: 2px 0;
+}
+
+.tl-fold summary:hover { color: var(--ink); }
+
+.tl-fold summary:focus-visible {
+  outline: 2px solid var(--mark);
+  outline-offset: 3px;
+}
+
+.tl-list.is-folded {
+  border-left: 0;
+  padding-left: 0;
+  margin-top: 14px;
+}
+
+/* Below the column breakpoint the date moves above the headline,
+   because 88px of date beside a wrapped headline leaves the
+   headline about nine characters wide on a phone. */
+@media (max-width: 599px) {
+  .tl-item {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .tl-marker { top: 5px; }
+}
+
+/* Read counts. Off by default; see Customize > Article page. */
+.byline-reads::before { content: "·"; margin: 0 6px; color: var(--rule); }
+
+.ranked-reads {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.ranked-reads::before { content: "·"; margin: 0 5px; }

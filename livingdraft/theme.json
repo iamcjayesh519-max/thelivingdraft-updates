@@ -1,0 +1,78 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 2,
+	"settings": {
+		"appearanceTools": false,
+		"useRootPaddingAwareAlignments": false,
+		"layout": {
+			"contentSize": "720px",
+			"wideSize": "1000px"
+		},
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"duotone": [],
+			"palette": [
+				{ "slug": "ink", "color": "#111111", "name": "Ink" },
+				{ "slug": "ink-soft", "color": "#4a4a45", "name": "Soft ink" },
+				{ "slug": "paper", "color": "#fdfdfb", "name": "Paper" },
+				{ "slug": "paper-tint", "color": "#f4f3ee", "name": "Paper tint" },
+				{ "slug": "rule", "color": "#d8d5cc", "name": "Rule" },
+				{ "slug": "mark", "color": "#a3271f", "name": "Kicker red" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"dropCap": true,
+			"fluid": true,
+			"fontFamilies": [
+				{
+					"slug": "body",
+					"name": "Text serif",
+					"fontFamily": "Georgia, 'Iowan Old Style', 'Times New Roman', Times, serif"
+				},
+				{
+					"slug": "meta",
+					"name": "Furniture mono",
+					"fontFamily": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+				},
+				{
+					"slug": "display",
+					"name": "Utility sans",
+					"fontFamily": "'Helvetica Neue', Helvetica, Arial, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+				}
+			],
+			"fontSizes": [
+				{ "slug": "small", "size": "15px", "name": "Small" },
+				{ "slug": "medium", "size": "17px", "name": "Medium" },
+				{ "slug": "large", "size": "22px", "name": "Large" },
+				{ "slug": "x-large", "size": "32px", "name": "Extra large" }
+			]
+		},
+		"spacing": {
+			"customSpacingSize": false,
+			"units": [ "px", "em", "rem", "%" ]
+		},
+		"border": { "color": false, "radius": false, "style": false, "width": false },
+		"shadow": { "defaultPresets": false, "presets": [] }
+	},
+	"styles": {
+		"color": {
+			"background": "#fdfdfb",
+			"text": "#111111"
+		},
+		"typography": {
+			"fontFamily": "Georgia, 'Iowan Old Style', 'Times New Roman', Times, serif",
+			"fontSize": "17px",
+			"lineHeight": "1.62"
+		},
+		"elements": {
+			"link": { "color": { "text": "#1b3f7a" } },
+			"h1": { "typography": { "fontWeight": "400", "lineHeight": "1.1" } },
+			"h2": { "typography": { "fontWeight": "400", "lineHeight": "1.15" } },
+			"h3": { "typography": { "fontWeight": "400", "lineHeight": "1.2" } }
+		}
+	}
+}

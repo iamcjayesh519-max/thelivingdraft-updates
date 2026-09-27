@@ -1,0 +1,113 @@
+/*
+ * Right-to-left. Only the directional rules are flipped; everything else
+ * comes from style.css unchanged.
+ */
+
+body { direction: rtl; unicode-bidi: embed; }
+
+/* Furniture that hangs off one edge */
+.masthead-side.is-right { text-align: left; }
+.masthead-side .edition-social { margin-left: 0; margin-right: 12px; }
+.masthead-side.is-right .edition-social { justify-content: flex-start; }
+
+.nav-search { margin-left: 0; margin-right: auto; }
+
+.primary-menu .sub-menu {
+  border-left: 0;
+  border-right: 1px solid var(--rule);
+  padding: 0 16px 6px 0;
+}
+
+/* Rules that divide columns */
+.rail { padding-left: 0; }
+
+.blockquote,
+blockquote {
+  border-left: 0;
+  border-right: 3px double var(--ink);
+  padding: 14px 20px 14px 0;
+}
+
+.wp-block-group.is-style-correction {
+  border-left: 0;
+  border-right: 3px solid var(--mark);
+  padding: 12px 16px 12px 0;
+}
+
+.comment-list ol.children {
+  padding-left: 0;
+  padding-right: 20px;
+  border-left: 0;
+  border-right: 1px solid var(--rule);
+}
+
+.comment-item.bypostauthor > .comment-body {
+  border-left: 0;
+  border-right: 3px solid var(--mark);
+  padding-left: 0;
+  padding-right: 14px;
+}
+
+.widget .sub-menu, .widget .children {
+  border-left: 0;
+  border-right: 1px solid var(--rule);
+  padding-left: 0;
+  padding-right: 12px;
+}
+
+.entry-content ul, .entry-content ol { padding-left: 0; padding-right: 22px; }
+.wp-block-list.is-style-ruled { padding-right: 0; }
+
+/* Floats and the drop cap */
+.alignleft { float: right; margin: 0 0 14px 22px; }
+.alignright { float: left; margin: 0 22px 14px 0; }
+
+.has-dropcap .teaser > p:first-of-type::first-letter,
+.has-dropcap.single-post .entry-content > p:first-of-type::first-letter {
+  float: right;
+  padding: 4px 0 0 8px;
+}
+
+.brief.is-revised .brief-title::before,
+.story.is-revised .story-title::before { margin-right: 0; margin-left: 8px; }
+
+.sticky .entry-title::after,
+.story.sticky .story-title::after { margin-left: 0; margin-right: 8px; }
+
+@media (max-width: 599px) {
+  .alignleft, .alignright { float: none; margin: 0 0 14px; }
+}
+
+@media (min-width: 600px) {
+  .col-item { border-left: 0; border-right: 1px solid var(--rule); }
+  .col-item:nth-child(2n+1) { padding-right: 0; padding-left: 22px; border-right: 0; }
+  .col-item:nth-child(2n) { padding-left: 0; padding-right: 22px; }
+}
+
+@media (min-width: 900px) {
+  .nav-search { right: auto; left: 18px; }
+
+  .rail {
+    border-left: 0;
+    border-right: 1px solid var(--ink);
+    padding-left: 0;
+    padding-right: 22px;
+  }
+
+  .layout .sidebar {
+    border-left: 0;
+    border-right: 1px solid var(--ink);
+    padding-left: 0;
+    padding-right: 24px;
+  }
+
+  .col-item:nth-child(2n+1) { padding-left: 22px; padding-right: 22px; border-right: 1px solid var(--rule); }
+  .col-item:nth-child(3n+1) { padding-right: 0; border-right: 0; }
+  .col-item:nth-child(3n) { padding-left: 0; }
+
+  .standing .widget { border-left: 0; border-right: 1px solid var(--rule); }
+  .standing .widget:nth-child(3n+1) { padding-right: 0; border-right: 0; }
+  .standing .widget:nth-child(3n) { padding-left: 0; }
+
+  .primary-menu .sub-menu { left: auto; right: -14px; }
+}

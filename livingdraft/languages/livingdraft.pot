@@ -1,0 +1,1957 @@
+# Copyright (C) 2026 Living Draft
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Living Draft 4.0.0\n"
+"Report-Msgid-Bugs-To: https://thelivingdraft.com\n"
+"POT-Creation-Date: 2026-08-29 18:10+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: livingdraft\n"
+
+#: 404.php:13
+msgid "Page 404 — not in this edition"
+msgstr ""
+
+#: 404.php:14
+msgid "This story has moved or never ran"
+msgstr ""
+
+#: 404.php:15
+msgid "Search for it below, or go back to the front page for today’s edition."
+msgstr ""
+
+#: 404.php:19 inc/customizer.php:104 inc/customizer/tokens.php:1320
+#: inc/demo/demo-content.php:394
+msgid "Front page"
+msgstr ""
+
+#: archive.php:32 author.php:37
+#, php-format
+msgid "%s story filed"
+msgid_plural "%s stories filed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: archive.php:42
+msgid "Nothing has been filed under this heading yet."
+msgstr ""
+
+#: author.php:23
+msgid "Writer"
+msgstr ""
+
+#: author.php:56
+msgid "This writer has not filed anything yet."
+msgstr ""
+
+#: comments.php:19
+#, php-format
+msgid "%s response"
+msgid_plural "%s responses"
+msgstr[0] ""
+msgstr[1] ""
+
+#: comments.php:40 inc/template-tags.php:573
+msgid "Previous"
+msgstr ""
+
+#: comments.php:41 inc/template-tags.php:574
+msgid "Next"
+msgstr ""
+
+#: comments.php:48
+msgid "Responses are closed on this story."
+msgstr ""
+
+#: comments.php:54
+msgid "Add a response"
+msgstr ""
+
+#: comments.php:55
+msgid "Post response"
+msgstr ""
+
+#: comments.php:56
+msgid "Responses are read before they appear. Corrections are welcome."
+msgstr ""
+
+#: comments.php:57
+msgid "Response"
+msgstr ""
+
+#: footer.php:41 header.php:76
+msgid "X"
+msgstr ""
+
+#: footer.php:47 header.php:82
+msgid "Instagram"
+msgstr ""
+
+#: footer.php:56
+msgid "The paper"
+msgstr ""
+
+#: footer.php:57
+msgid "The Paper"
+msgstr ""
+
+#: footer.php:89
+#, php-format
+msgid "© %1$s %2$s. All rights reserved."
+msgstr ""
+
+#: footer.php:96
+msgid "Corrections are published, not quietly made."
+msgstr ""
+
+#: functions.php:78
+msgid "Primary menu"
+msgstr ""
+
+#: functions.php:79
+msgid "Footer menu"
+msgstr ""
+
+#: functions.php:417
+msgid "Sidebar"
+msgstr ""
+
+#: functions.php:419
+msgid "The right-hand rail on articles, archives and search results."
+msgstr ""
+
+#: functions.php:429
+msgid "Footer"
+msgstr ""
+
+#: functions.php:431
+msgid "Shown in the footer, beside the policy links."
+msgstr ""
+
+#: header.php:20
+msgid "Skip to stories"
+msgstr ""
+
+#: header.php:30
+#, php-format
+msgid "Vol. %1$s · No. %2$s"
+msgstr ""
+
+#: header.php:109
+msgid "Sections"
+msgstr ""
+
+#: header.php:112
+msgid "Primary"
+msgstr ""
+
+#: header.php:130
+msgid "Search"
+msgstr ""
+
+#: header.php:145 header.php:147
+msgid "Index"
+msgstr ""
+
+#: inc/blocks.php:24
+msgid "The Living Draft"
+msgstr ""
+
+#: inc/blocks.php:42
+msgid "Brief"
+msgstr ""
+
+#: inc/blocks.php:50
+msgid "Double rule"
+msgstr ""
+
+#: inc/blocks.php:58
+msgid "Fact box"
+msgstr ""
+
+#: inc/blocks.php:66
+msgid "Correction notice"
+msgstr ""
+
+#: inc/blocks.php:74
+msgid "Ruled frame"
+msgstr ""
+
+#: inc/blocks.php:82
+msgid "Ruled list"
+msgstr ""
+
+#: inc/color-scheme.php:58
+msgid "Light"
+msgstr ""
+
+#: inc/color-scheme.php:59
+msgid "Dark"
+msgstr ""
+
+#: inc/color-scheme.php:60
+msgid "Match my device"
+msgstr ""
+
+#: inc/color-scheme.php:189
+msgid "Page appearance"
+msgstr ""
+
+#: inc/color-scheme.php:252
+msgid "Light and dark"
+msgstr ""
+
+#: inc/color-scheme.php:254
+msgid "How the paper looks, and whether readers may choose for themselves."
+msgstr ""
+
+#: inc/color-scheme.php:270
+msgid "How the paper opens"
+msgstr ""
+
+#: inc/color-scheme.php:271
+msgid ""
+"What a reader sees on their first visit. \"Match my device\" follows "
+"whatever their phone or computer is set to. Readers who make their own "
+"choice keep it, whatever this is set to."
+msgstr ""
+
+#: inc/color-scheme.php:290
+msgid "Let readers choose"
+msgstr ""
+
+#: inc/color-scheme.php:291
+msgid ""
+"Shows a small light/dark control in the masthead. Turn this off to lock the "
+"paper to the appearance chosen above."
+msgstr ""
+
+#: inc/customizer-extra.php:30
+msgid "Paper (page background)"
+msgstr ""
+
+#: inc/customizer-extra.php:36
+msgid "Ink (text and heavy rules)"
+msgstr ""
+
+#: inc/customizer-extra.php:42
+msgid "Soft ink (standfirsts, excerpts)"
+msgstr ""
+
+#: inc/customizer-extra.php:48
+msgid "Mark (kickers, corrections, accents)"
+msgstr ""
+
+#: inc/customizer-extra.php:54
+msgid "Links inside stories"
+msgstr ""
+
+#: inc/customizer-extra.php:60
+msgid "Hairline rules"
+msgstr ""
+
+#: inc/customizer-extra.php:75
+msgid "Georgia (newspaper serif)"
+msgstr ""
+
+#: inc/customizer-extra.php:79
+msgid "Times (classic broadsheet)"
+msgstr ""
+
+#: inc/customizer-extra.php:83
+msgid "Palatino (softer serif)"
+msgstr ""
+
+#: inc/customizer-extra.php:87
+msgid "System sans (modern)"
+msgstr ""
+
+#: inc/customizer-extra.php:114 inc/customizer/tokens.php:1290
+msgid "Colours"
+msgstr ""
+
+#: inc/customizer-extra.php:115
+msgid ""
+"Changes here repaint the whole site, including every article block. Dark "
+"mode adjusts itself from these."
+msgstr ""
+
+#: inc/customizer-extra.php:151 inc/customizer/tokens.php:1296
+msgid "Typography"
+msgstr ""
+
+#: inc/customizer-extra.php:152
+msgid ""
+"All device fonts. Nothing is downloaded, so the page can paint immediately."
+msgstr ""
+
+#: inc/customizer-extra.php:172
+msgid "Headline font"
+msgstr ""
+
+#: inc/customizer-extra.php:189 inc/customizer/tokens.php:219
+msgid "Body font"
+msgstr ""
+
+#: inc/customizer-extra.php:206
+msgid "Body text size (px)"
+msgstr ""
+
+#: inc/customizer-extra.php:207
+msgid ""
+"Between 15 and 21. Newspapers set body text small; screens want it larger."
+msgstr ""
+
+#: inc/customizer-extra.php:228
+msgid "Line length (characters)"
+msgstr ""
+
+#: inc/customizer-extra.php:229
+msgid ""
+"How wide a line of story text may run. Above about 75 the eye starts losing "
+"its place on the way back."
+msgstr ""
+
+#: inc/customizer-extra.php:249
+msgid "Layout and width"
+msgstr ""
+
+#: inc/customizer-extra.php:250
+msgid ""
+"The page is fluid: it fills a share of the window and stops at a maximum. "
+"That is what keeps the margins sensible when a reader zooms out to 80 per "
+"cent."
+msgstr ""
+
+#: inc/customizer-extra.php:265 inc/customizer/tokens.php:318
+msgid "Fill this much of the window (%)"
+msgstr ""
+
+#: inc/customizer-extra.php:266 inc/customizer/tokens.php:319
+msgid "94 leaves a thin margin at every size. Lower it for more white space."
+msgstr ""
+
+#: inc/customizer-extra.php:287 inc/customizer/tokens.php:336
+msgid "But never wider than (px)"
+msgstr ""
+
+#: inc/customizer-extra.php:288
+msgid ""
+"2100 keeps the margins thin even at 80 per cent zoom on a 1920 screen. Lower "
+"it towards 1300 for a narrower, more traditional page."
+msgstr ""
+
+#: inc/customizer-extra.php:309
+msgid "Sidebar width (px)"
+msgstr ""
+
+#: inc/customizer-extra.php:330 inc/customizer/tokens.php:526
+msgid "Columns in the story grid"
+msgstr ""
+
+#: inc/customizer-extra.php:331
+msgid "Three is the newspaper default. Four suits a very wide page."
+msgstr ""
+
+#: inc/customizer-extra.php:335
+msgid "Three"
+msgstr ""
+
+#: inc/customizer-extra.php:336 inc/customizer/tokens.php:532
+msgid "Four"
+msgstr ""
+
+#: inc/customizer-extra.php:357 inc/customizer/tokens.php:803
+msgid "Show the latest-stories strip"
+msgstr ""
+
+#: inc/customizer-extra.php:358
+msgid "A swipeable row under the lead. Nothing rotates on its own."
+msgstr ""
+
+#: inc/customizer-extra.php:374 inc/customizer/tokens.php:814
+msgid "Stories in the strip"
+msgstr ""
+
+#: inc/customizer-extra.php:395
+msgid "Show Latest / Popular / Trending"
+msgstr ""
+
+#: inc/customizer-extra.php:396 inc/customizer/tokens.php:830
+msgid ""
+"Popular and Trending need the The Living Draft Core plugin, which does the "
+"counting."
+msgstr ""
+
+#: inc/customizer-extra.php:412
+msgid "Stories in each list"
+msgstr ""
+
+#: inc/customizer-extra.php:433 inc/customizer/tokens.php:855
+msgid "Sections listed in the sidebar"
+msgstr ""
+
+#: inc/customizer-extra.php:434
+msgid "The busiest sections first. The rest stay reachable through a link."
+msgstr ""
+
+#: inc/customizer-extra.php:454 inc/customizer/tokens.php:1308
+msgid "Article page"
+msgstr ""
+
+#: inc/customizer-extra.php:455
+msgid "What appears on a single story."
+msgstr ""
+
+#: inc/customizer-extra.php:461
+msgid "Reading time in the byline"
+msgstr ""
+
+#: inc/customizer-extra.php:462
+msgid "Author box under the story"
+msgstr ""
+
+#: inc/customizer-extra.php:463
+msgid "Read Next block"
+msgstr ""
+
+#: inc/customizer-extra.php:467
+msgid "Story timeline (\"This Story So Far\")"
+msgstr ""
+
+#: inc/customizer-extra.php:468
+msgid "Earlier / Later links"
+msgstr ""
+
+#: inc/customizer-extra.php:469
+msgid "Breadcrumb trail"
+msgstr ""
+
+#: inc/customizer-extra.php:492
+msgid "Read count in the byline"
+msgstr ""
+
+#: inc/customizer-extra.php:493
+msgid ""
+"Shows how many times a story has been read, under the headline. Hidden on "
+"stories with fewer than 50 reads. The Popular and Trending lists show their "
+"counts regardless."
+msgstr ""
+
+#: inc/customizer-extra.php:530
+msgid "Featured image width (%)"
+msgstr ""
+
+#: inc/customizer-extra.php:531
+msgid ""
+"Percent of the reading column the hero image fills on desktop. 100 (default) "
+"matches the paragraph width beneath it. Drop lower for a narrower, more "
+"magazine-like image. Mobile stays full-bleed regardless."
+msgstr ""
+
+#: inc/customizer-extra.php:553
+msgid "Max image height (px)"
+msgstr ""
+
+#: inc/customizer-extra.php:554 inc/customizer/tokens.php:617
+msgid ""
+"0 keeps the natural 1.91:1 crop the newsroom uploads. Set a number (say 360) "
+"to letterbox tall images into a wider crop — the centre of the frame is "
+"preserved and top/bottom edges are trimmed."
+msgstr ""
+
+#: inc/customizer-extra.php:576
+msgid "Image alignment"
+msgstr ""
+
+#: inc/customizer-extra.php:577
+msgid "Only matters when width is under 100."
+msgstr ""
+
+#: inc/customizer-extra.php:581 inc/customizer/tokens.php:642
+msgid "Left"
+msgstr ""
+
+#: inc/customizer-extra.php:582 inc/customizer/tokens.php:643
+msgid "Centre"
+msgstr ""
+
+#: inc/customizer-extra.php:583 inc/customizer/tokens.php:644
+msgid "Right"
+msgstr ""
+
+#: inc/customizer-extra.php:597 inc/customizer/tokens.php:1338
+msgid "Footer and newsletter"
+msgstr ""
+
+#: inc/customizer-extra.php:598
+msgid ""
+"Subscribers are stored in your own database by the The Living Draft Core "
+"plugin. Find them under Subscribers in the admin menu."
+msgstr ""
+
+#: inc/customizer-extra.php:613
+msgid "Show the newsletter band above the footer"
+msgstr ""
+
+#: inc/customizer-extra.php:622 template-parts/newsletter-bar.php:20
+msgid "The edition, by email"
+msgstr ""
+
+#: inc/customizer-extra.php:629 inc/customizer/tokens.php:1038
+msgid "Newsletter heading"
+msgstr ""
+
+#: inc/customizer-extra.php:645 inc/customizer/tokens.php:1049
+msgid "Copyright line"
+msgstr ""
+
+#: inc/customizer-extra.php:646
+msgid "Leave blank for the year and your site name."
+msgstr ""
+
+#: inc/customizer-extra.php:661 inc/customizer/tokens.php:1344
+msgid "Cookies and tracking"
+msgstr ""
+
+#: inc/customizer-extra.php:662
+msgid ""
+"The banner holds Google Analytics back until a reader agrees. A banner that "
+"shows a message and loads the tracker anyway would not count as consent."
+msgstr ""
+
+#: inc/customizer-extra.php:677
+msgid "Ask before tracking"
+msgstr ""
+
+#: inc/customizer-extra.php:678
+msgid "Switch off only if you run no analytics at all."
+msgstr ""
+
+#: inc/customizer-extra.php:687
+msgid ""
+"We use cookies to understand which stories are read. Nothing is loaded until "
+"you choose."
+msgstr ""
+
+#: inc/customizer-extra.php:694 inc/customizer/tokens.php:1078
+msgid "Banner wording"
+msgstr ""
+
+#: inc/customizer-extra.php:710
+msgid "Cookie notice page"
+msgstr ""
+
+#: inc/customizer-extra.php:711
+msgid "Leave blank to use your privacy policy page."
+msgstr ""
+
+#: inc/customizer-extra.php:926
+#, php-format
+msgid "%s more section"
+msgid_plural "%s more sections"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/customizer.php:32 inc/customizer/tokens.php:1314
+msgid "Masthead"
+msgstr ""
+
+#: inc/customizer.php:33
+msgid "The lines that flank the title and run under it."
+msgstr ""
+
+#: inc/customizer.php:49 inc/customizer/tokens.php:727
+msgid "Edition line"
+msgstr ""
+
+#: inc/customizer.php:50 inc/customizer/tokens.php:728
+msgid ""
+"Sits at the top right, opposite the volume number. For example: Kalyan · "
+"Online."
+msgstr ""
+
+#: inc/customizer.php:67 inc/customizer/tokens.php:738
+msgid "Dateline strapline"
+msgstr ""
+
+#: inc/customizer.php:68 inc/customizer/tokens.php:739
+msgid ""
+"Runs beside the date in the strip under the title. Leave blank to use the "
+"site tagline."
+msgstr ""
+
+#: inc/customizer.php:85 inc/customizer/tokens.php:750
+msgid "Year founded"
+msgstr ""
+
+#: inc/customizer.php:86 inc/customizer/tokens.php:751
+msgid "Sets the volume number: one volume per year since this date."
+msgstr ""
+
+#: inc/customizer.php:105
+msgid ""
+"How the lead story and the brief rail are set. The same shape is used on "
+"section fronts."
+msgstr ""
+
+#: inc/customizer.php:121 inc/customizer/tokens.php:777
+msgid "Stories in the brief rail"
+msgstr ""
+
+#: inc/customizer.php:122 inc/customizer/tokens.php:778
+msgid ""
+"Set to 0 to run the lead full width. Above four, the rest fall under a "
+"second heading."
+msgstr ""
+
+#: inc/customizer.php:144 inc/customizer/tokens.php:792
+msgid "Drop cap on the opening paragraph"
+msgstr ""
+
+#: inc/customizer.php:145
+msgid "Applies to the lead on the front page and to every story."
+msgstr ""
+
+#: inc/customizer.php:162
+msgid "Newsletter pitch"
+msgstr ""
+
+#: inc/customizer.php:163
+msgid "One line at the foot of the brief rail. Needs a link below to appear."
+msgstr ""
+
+#: inc/customizer.php:180 inc/customizer/tokens.php:958
+msgid "Newsletter sign-up URL"
+msgstr ""
+
+#: inc/customizer.php:193 inc/customizer/tokens.php:1326
+msgid "Sharing"
+msgstr ""
+
+#: inc/customizer.php:194 inc/customizer/tokens.php:1327
+msgid "Used when a link to this site is posted elsewhere."
+msgstr ""
+
+#: inc/customizer.php:212 inc/customizer/tokens.php:976
+msgid "Default share image"
+msgstr ""
+
+#: inc/customizer.php:213
+msgid "Shown when a page has no featured image. Upload at 1200 by 628 pixels."
+msgstr ""
+
+#: inc/customizer.php:227 inc/customizer/tokens.php:1332
+msgid "Social links"
+msgstr ""
+
+#: inc/customizer.php:228 inc/customizer/tokens.php:1333
+msgid ""
+"Shown under the edition line, top right of the masthead. Leave blank to hide."
+msgstr ""
+
+#: inc/customizer.php:244
+msgid "X profile URL"
+msgstr ""
+
+#: inc/customizer.php:261 inc/customizer/tokens.php:1009
+msgid "Instagram profile URL"
+msgstr ""
+
+#: inc/customizer/tokens.php:104
+msgid "Ink (main text)"
+msgstr ""
+
+#: inc/customizer/tokens.php:105
+msgid ""
+"The primary body text colour. Everything reads against the paper background."
+msgstr ""
+
+#: inc/customizer/tokens.php:116
+msgid "Ink secondary"
+msgstr ""
+
+#: inc/customizer/tokens.php:117
+msgid "Byline, links inside body copy, meta text."
+msgstr ""
+
+#: inc/customizer/tokens.php:128
+msgid "Ink tertiary"
+msgstr ""
+
+#: inc/customizer/tokens.php:129
+msgid "Captions, timestamps, hairline labels, small furniture."
+msgstr ""
+
+#: inc/customizer/tokens.php:140
+msgid "Paper"
+msgstr ""
+
+#: inc/customizer/tokens.php:141
+msgid ""
+"The page background. Off-white by default; broadsheets are rarely pure white."
+msgstr ""
+
+#: inc/customizer/tokens.php:152
+msgid "Paper alternate"
+msgstr ""
+
+#: inc/customizer/tokens.php:153
+msgid "Table stripes, quote pull-outs, subtle band backgrounds."
+msgstr ""
+
+#: inc/customizer/tokens.php:164
+msgid "Rule (hairlines)"
+msgstr ""
+
+#: inc/customizer/tokens.php:165
+msgid "Colour of the thin horizontal rules between sections and stories."
+msgstr ""
+
+#: inc/customizer/tokens.php:176
+msgid "Rule secondary"
+msgstr ""
+
+#: inc/customizer/tokens.php:177
+msgid "Even lighter hairlines — column dividers, ghost separators."
+msgstr ""
+
+#: inc/customizer/tokens.php:188
+msgid "Mark (accent)"
+msgstr ""
+
+#: inc/customizer/tokens.php:189
+msgid ""
+"Editorial highlight colour — the current section indicator, hover states, "
+"corrections."
+msgstr ""
+
+#: inc/customizer/tokens.php:200
+msgid "Link"
+msgstr ""
+
+#: inc/customizer/tokens.php:201
+msgid ""
+"Body-text links. Newspapers historically use blue; use whatever contrasts "
+"with your ink."
+msgstr ""
+
+#: inc/customizer/tokens.php:220
+msgid ""
+"The font used for paragraphs and body copy. Serif fonts read best for long-"
+"form."
+msgstr ""
+
+#: inc/customizer/tokens.php:244
+msgid "Heading font"
+msgstr ""
+
+#: inc/customizer/tokens.php:245
+msgid ""
+"The font for headlines and section titles. Often the same as body for a "
+"broadsheet feel."
+msgstr ""
+
+#: inc/customizer/tokens.php:269
+msgid "Base font size (px)"
+msgstr ""
+
+#: inc/customizer/tokens.php:270
+msgid "Body text size. 16–18 is the sweet spot for editorial reading."
+msgstr ""
+
+#: inc/customizer/tokens.php:290
+msgid "Reading measure (characters)"
+msgstr ""
+
+#: inc/customizer/tokens.php:291
+msgid ""
+"How many characters wide a paragraph is at most. 60–75 is comfortable; wider "
+"hurts readability."
+msgstr ""
+
+#: inc/customizer/tokens.php:337
+msgid ""
+"2100 keeps the margins thin even at 80 per cent zoom on a 1920 screen. Lower "
+"it toward 1300 for a narrower, more traditional page."
+msgstr ""
+
+#: inc/customizer/tokens.php:371
+msgid "Sidebar width (px, fixed)"
+msgstr ""
+
+#: inc/customizer/tokens.php:372
+msgid ""
+"A fixed sidebar width in pixels. Only used when the percentage below is at "
+"its default. Useful if you want the sidebar the same size at every screen "
+"width."
+msgstr ""
+
+#: inc/customizer/tokens.php:389
+#, php-format
+msgid "Sidebar width (% of screen)"
+msgstr ""
+
+#: inc/customizer/tokens.php:390
+msgid ""
+"How much of the screen the sidebar takes up. 15% is typical newspaper; 20% "
+"gives the sidebar more room; 10% makes it a thin rail. Set to 0 to use the "
+"pixel value below instead."
+msgstr ""
+
+#: inc/customizer/tokens.php:415
+msgid "Article width (px)"
+msgstr ""
+
+#: inc/customizer/tokens.php:416
+msgid ""
+"How wide the article body is on desktop. Lower numbers make articles "
+"narrower and easier to read; higher numbers spread text wider."
+msgstr ""
+
+#: inc/customizer/tokens.php:436
+msgid "Gap between article and sidebar (px)"
+msgstr ""
+
+#: inc/customizer/tokens.php:437
+msgid ""
+"The empty space between the article's right edge and the sidebar. Wider gaps "
+"feel more like magazine spreads; tighter gaps feel like a webapp."
+msgstr ""
+
+#: inc/customizer/tokens.php:457
+msgid "Sidebar position"
+msgstr ""
+
+#: inc/customizer/tokens.php:458
+msgid ""
+"Where the sidebar sits relative to the article: on the right (default, most "
+"common), on the left, or hidden entirely."
+msgstr ""
+
+#: inc/customizer/tokens.php:462
+msgid "Right of article (default)"
+msgstr ""
+
+#: inc/customizer/tokens.php:463
+msgid "Left of article"
+msgstr ""
+
+#: inc/customizer/tokens.php:464
+msgid "Hidden (article fills full width)"
+msgstr ""
+
+#: inc/customizer/tokens.php:487
+msgid "Sidebar on mobile"
+msgstr ""
+
+#: inc/customizer/tokens.php:488
+msgid ""
+"On phones, the sidebar can appear below the article (default), hide behind a "
+"menu button, or not show at all."
+msgstr ""
+
+#: inc/customizer/tokens.php:492
+msgid "Below the article"
+msgstr ""
+
+#: inc/customizer/tokens.php:493
+msgid "Behind a menu button"
+msgstr ""
+
+#: inc/customizer/tokens.php:494
+msgid "Hidden on mobile"
+msgstr ""
+
+#: inc/customizer/tokens.php:507
+msgid "Maximum layout width (px)"
+msgstr ""
+
+#: inc/customizer/tokens.php:508
+msgid ""
+"Beyond this viewport width, the whole page shrinks uniformly (like an image "
+"scaling down) instead of spreading out further. Prevents the site looking "
+"odd when a reader zooms out past 80%. Set to 0 to disable — the page will "
+"then keep spreading out at wide viewports."
+msgstr ""
+
+#: inc/customizer/tokens.php:527
+msgid ""
+"Three is the newspaper default. Four suits a very wide page. Used by the "
+"front-page story grid."
+msgstr ""
+
+#: inc/customizer/tokens.php:531
+msgid "Three (default)"
+msgstr ""
+
+#: inc/customizer/tokens.php:553
+#, php-format
+msgid "Featured image width (% of article)"
+msgstr ""
+
+#: inc/customizer/tokens.php:554
+msgid ""
+"How much of the article column the hero image fills. 100 keeps the image at "
+"its intrinsic size (matches your paragraph width). Lower for a smaller image "
+"with breathing room. Mobile stays full-width regardless."
+msgstr ""
+
+#: inc/customizer/tokens.php:574
+msgid "Featured image width (px, desktop only)"
+msgstr ""
+
+#: inc/customizer/tokens.php:575
+#, php-format
+msgid ""
+"A fixed pixel width for the hero image on desktop only — overrides the "
+"% control above when set. 0 disables. Mobile and tablet always stay full-"
+"width regardless of what you set here."
+msgstr ""
+
+#: inc/customizer/tokens.php:595
+msgid "Featured image height (px, desktop only)"
+msgstr ""
+
+#: inc/customizer/tokens.php:596
+msgid ""
+"A fixed pixel height for the hero image on desktop only — crops the image to "
+"that exact height, keeping the centre of the frame. 0 keeps the natural "
+"aspect ratio. Mobile and tablet always use natural height."
+msgstr ""
+
+#: inc/customizer/tokens.php:616
+msgid "Featured image max height (px)"
+msgstr ""
+
+#: inc/customizer/tokens.php:637
+msgid "Featured image alignment"
+msgstr ""
+
+#: inc/customizer/tokens.php:638
+msgid "Only matters when the image is narrower than its container."
+msgstr ""
+
+#: inc/customizer/tokens.php:670
+msgid "Show reading time in byline"
+msgstr ""
+
+#: inc/customizer/tokens.php:680
+msgid "Show author box under story"
+msgstr ""
+
+#: inc/customizer/tokens.php:690
+msgid "Show Read Next block"
+msgstr ""
+
+#: inc/customizer/tokens.php:700
+msgid "Show Earlier / Later links"
+msgstr ""
+
+#: inc/customizer/tokens.php:710
+msgid "Show breadcrumb trail"
+msgstr ""
+
+#: inc/customizer/tokens.php:793
+msgid ""
+"The large decorative first letter that starts each article. Applies to the "
+"lead on the front page and to every story."
+msgstr ""
+
+#: inc/customizer/tokens.php:804
+msgid ""
+"A swipeable row of recent stories under the lead. Nothing rotates on its own."
+msgstr ""
+
+#: inc/customizer/tokens.php:815
+msgid "How many recent stories appear in the swipeable strip."
+msgstr ""
+
+#: inc/customizer/tokens.php:829
+msgid "Show Latest / Popular / Trending tabs"
+msgstr ""
+
+#: inc/customizer/tokens.php:840
+msgid "Stories in each tab list"
+msgstr ""
+
+#: inc/customizer/tokens.php:841
+msgid ""
+"How many stories appear in each of the Latest / Popular / Trending lists."
+msgstr ""
+
+#: inc/customizer/tokens.php:856
+msgid ""
+"How many section categories appear in the sidebar list. The busiest sections "
+"first; the rest stay reachable through the sections link."
+msgstr ""
+
+#: inc/customizer/tokens.php:872
+msgid "Homepage layout style"
+msgstr ""
+
+#: inc/customizer/tokens.php:873
+msgid ""
+"How story cards are arranged on the front page: a tidy grid, a scannable "
+"list, or a magazine-style masonry."
+msgstr ""
+
+#: inc/customizer/tokens.php:877
+msgid "Grid (default) — even columns, equal card heights"
+msgstr ""
+
+#: inc/customizer/tokens.php:878
+msgid "List — stacked rows with image beside text"
+msgstr ""
+
+#: inc/customizer/tokens.php:879
+msgid "Masonry — mixed heights, magazine feel"
+msgstr ""
+
+#: inc/customizer/tokens.php:891
+msgid "Story card style"
+msgstr ""
+
+#: inc/customizer/tokens.php:892
+msgid ""
+"How much visual weight each story card carries: compact for scanning, "
+"standard for balance, or prominent for larger images."
+msgstr ""
+
+#: inc/customizer/tokens.php:896
+msgid "Compact — small image, tight spacing"
+msgstr ""
+
+#: inc/customizer/tokens.php:897
+msgid "Standard (default) — balanced"
+msgstr ""
+
+#: inc/customizer/tokens.php:898
+msgid "Prominent — larger image, more breathing room"
+msgstr ""
+
+#: inc/customizer/tokens.php:910
+msgid "Pagination style"
+msgstr ""
+
+#: inc/customizer/tokens.php:911
+msgid ""
+"How readers get to the next set of stories: page numbers (traditional), a "
+"Load More button, or endless scroll."
+msgstr ""
+
+#: inc/customizer/tokens.php:915
+msgid "Numbered pages (default)"
+msgstr ""
+
+#: inc/customizer/tokens.php:916
+msgid "Load More button"
+msgstr ""
+
+#: inc/customizer/tokens.php:917
+msgid "Infinite scroll"
+msgstr ""
+
+#: inc/customizer/tokens.php:929
+msgid "Category card style"
+msgstr ""
+
+#: inc/customizer/tokens.php:930
+msgid ""
+"Story cards on category/section pages: all the same shape (uniform) or a mix "
+"with the first story larger (varied)."
+msgstr ""
+
+#: inc/customizer/tokens.php:934
+msgid "Uniform (default) — all cards same size"
+msgstr ""
+
+#: inc/customizer/tokens.php:935
+msgid "Varied — first story larger, rest smaller"
+msgstr ""
+
+#: inc/customizer/tokens.php:947
+msgid "Newsletter pitch (in brief rail)"
+msgstr ""
+
+#: inc/customizer/tokens.php:948
+msgid "One line at the foot of the brief rail. Needs a URL below to appear."
+msgstr ""
+
+#: inc/customizer/tokens.php:959
+msgid "Where the newsletter pitch link goes."
+msgstr ""
+
+#: inc/customizer/tokens.php:977
+msgid ""
+"Shown when a page has no featured image and someone shares the link on "
+"social media. Upload at 1200 by 628 pixels for best results."
+msgstr ""
+
+#: inc/customizer/tokens.php:998
+msgid "X (Twitter) profile URL"
+msgstr ""
+
+#: inc/customizer/tokens.php:999
+msgid "Full URL to your X profile. Leave blank to hide the X icon."
+msgstr ""
+
+#: inc/customizer/tokens.php:1010
+msgid ""
+"Full URL to your Instagram profile. Leave blank to hide the Instagram icon."
+msgstr ""
+
+#: inc/customizer/tokens.php:1027
+msgid "Show newsletter band above footer"
+msgstr ""
+
+#: inc/customizer/tokens.php:1028
+msgid ""
+"The dedicated email signup band that appears above the site footer on every "
+"page."
+msgstr ""
+
+#: inc/customizer/tokens.php:1039
+msgid "The headline shown at the top of the newsletter signup band."
+msgstr ""
+
+#: inc/customizer/tokens.php:1050
+msgid ""
+"The line at the very bottom of every page. Leave blank to auto-generate \"© "
+"[year] [site name]\"."
+msgstr ""
+
+#: inc/customizer/tokens.php:1067
+msgid "Show cookie consent banner"
+msgstr ""
+
+#: inc/customizer/tokens.php:1068
+msgid ""
+"Hold Google Analytics back until the reader clicks Accept. Turn off only if "
+"you run no analytics at all."
+msgstr ""
+
+#: inc/customizer/tokens.php:1079
+msgid "The text shown in the cookie banner. Keep it short and honest."
+msgstr ""
+
+#: inc/customizer/tokens.php:1089
+msgid "Cookie notice page URL"
+msgstr ""
+
+#: inc/customizer/tokens.php:1090
+msgid ""
+"Where the \"Read the notice\" link in the banner goes. Leave blank to use "
+"your privacy policy page."
+msgstr ""
+
+#: inc/customizer/tokens.php:1291
+msgid ""
+"Every colour on the site reads from these controls. Change one, and it "
+"updates everywhere — including inside blocks."
+msgstr ""
+
+#: inc/customizer/tokens.php:1297
+msgid "Fonts and text sizing. Changes preview live as you adjust."
+msgstr ""
+
+#: inc/customizer/tokens.php:1302
+msgid "Page layout"
+msgstr ""
+
+#: inc/customizer/tokens.php:1303
+msgid "Site width, sidebar width, and how the page fills the window."
+msgstr ""
+
+#: inc/customizer/tokens.php:1309
+msgid ""
+"What appears on a single story: featured image behaviour, byline options, "
+"and article furniture."
+msgstr ""
+
+#: inc/customizer/tokens.php:1315
+msgid "The lines that flank the site title and run under it."
+msgstr ""
+
+#: inc/customizer/tokens.php:1321
+msgid "Homepage layout, story slider, and card style options."
+msgstr ""
+
+#: inc/customizer/tokens.php:1339
+msgid ""
+"The newsletter block above the footer, and the copyright line at the very "
+"bottom. Subscribers are stored in the The Living Draft Core plugin database."
+msgstr ""
+
+#: inc/customizer/tokens.php:1345
+msgid ""
+"The cookie banner holds Google Analytics back until a reader agrees. A "
+"banner that shows a message but loads the tracker anyway would not count as "
+"consent."
+msgstr ""
+
+#: inc/demo/demo-content.php:210
+msgid "You do not have permission to import demo content."
+msgstr ""
+
+#: inc/demo/demo-content.php:214
+msgid ""
+"Demo content is already installed. Remove it first if you want a clean copy."
+msgstr ""
+
+#: inc/demo/demo-content.php:346
+#, php-format
+msgid "%d demo story created."
+msgid_plural "%d demo stories created."
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/demo/demo-content.php:384
+msgid "Demo — Sections"
+msgstr ""
+
+#: inc/demo/demo-content.php:424
+msgid "Demo — The paper"
+msgstr ""
+
+#: inc/demo/demo-content.php:450
+msgid "Menus created and assigned to the empty menu positions."
+msgstr ""
+
+#: inc/demo/demo-content.php:454
+msgid "Your menus were already set, so they were left alone."
+msgstr ""
+
+#: inc/demo/demo-content.php:462
+msgid "Sidebar filled with Search, Recent Posts and Categories."
+msgstr ""
+
+#: inc/demo/demo-content.php:467
+msgid "Your sidebar already had widgets, so it was left alone."
+msgstr ""
+
+#: inc/demo/demo-content.php:472
+msgid "Demo edition"
+msgstr ""
+
+#: inc/demo/demo-content.php:473
+msgid "The world, in its draft form"
+msgstr ""
+
+#: inc/demo/demo-content.php:680
+#, php-format
+msgid "Demo placeholder: %s"
+msgstr ""
+
+#: inc/demo/demo-content.php:707
+#, php-format
+msgid "Placeholder graphic marked %s, standing in for a story photograph."
+msgstr ""
+
+#: inc/demo/demo-content.php:732
+msgid "You do not have permission to remove demo content."
+msgstr ""
+
+#: inc/demo/demo-content.php:736
+msgid "There is no demo content to remove."
+msgstr ""
+
+#: inc/demo/demo-content.php:819 inc/demo/demo-content.php:820
+#: inc/demo/demo-content.php:896
+msgid "Demo Content"
+msgstr ""
+
+#: inc/demo/demo-content.php:843
+msgid "You do not have permission to do that."
+msgstr ""
+
+#: inc/demo/demo-content.php:900
+msgid "Demo content installed."
+msgstr ""
+
+#: inc/demo/demo-content.php:901
+msgid "View the front page →"
+msgstr ""
+
+#: inc/demo/demo-content.php:904
+msgid "Demo content removed, and your settings put back."
+msgstr ""
+
+#: inc/demo/demo-content.php:910
+msgid ""
+"This theme is difficult to judge empty. A drop cap needs a lead story, a "
+"brief rail needs stories to brief, and the update log shows nothing at all "
+"until something has been logged. The demo content below fills the paper with "
+"worked examples so you can see what the theme actually does before "
+"committing to it."
+msgstr ""
+
+#: inc/demo/demo-content.php:914
+msgid ""
+"Every demo article is written to explain one part of the theme, so reading "
+"the demo site is also how you learn to use it."
+msgstr ""
+
+#: inc/demo/demo-content.php:921
+msgid "Demo content is installed"
+msgstr ""
+
+#: inc/demo/demo-content.php:927
+#, php-format
+msgid ""
+"Imported %1$s. It created %2$d stories and pages and %3$d images, all of "
+"which are hidden from search engines for as long as they exist."
+msgstr ""
+
+#: inc/demo/demo-content.php:935
+msgid "Removing it"
+msgstr ""
+
+#: inc/demo/demo-content.php:938
+msgid ""
+"Everything this import created is deleted, and any setting it changed is put "
+"back the way it was. Nothing you wrote yourself is touched. This cannot be "
+"undone, but nothing of yours is at stake."
+msgstr ""
+
+#: inc/demo/demo-content.php:946
+msgid "Remove demo content"
+msgstr ""
+
+#: inc/demo/demo-content.php:950
+msgid ""
+"Delete all demo stories, pages, sections and images, and restore your "
+"settings?"
+msgstr ""
+
+#: inc/demo/demo-content.php:957
+msgid "What importing will create"
+msgstr ""
+
+#: inc/demo/demo-content.php:960
+msgid ""
+"7 published stories, each explaining one part of the theme — including one "
+"carrying a published correction log, one labelled Analysis, and one with a "
+"second byline."
+msgstr ""
+
+#: inc/demo/demo-content.php:961
+msgid "3 sections and a handful of tags."
+msgstr ""
+
+#: inc/demo/demo-content.php:962
+msgid "3 pages: about, corrections policy and contact."
+msgstr ""
+
+#: inc/demo/demo-content.php:963
+msgid ""
+"Placeholder images drawn at the theme's own 1200 × 628 crop, with alt text "
+"written."
+msgstr ""
+
+#: inc/demo/demo-content.php:964
+msgid ""
+"A sections menu and a footer menu — only if those menu positions are "
+"currently empty."
+msgstr ""
+
+#: inc/demo/demo-content.php:965
+msgid ""
+"Search, Recent Posts and Categories widgets — only if your sidebar is "
+"currently empty."
+msgstr ""
+
+#: inc/demo/demo-content.php:968
+msgid "What it will not do"
+msgstr ""
+
+#: inc/demo/demo-content.php:971
+msgid ""
+"It will not change, overwrite or delete anything you have already written."
+msgstr ""
+
+#: inc/demo/demo-content.php:972
+msgid "It will not touch a menu position or a sidebar you have already filled."
+msgstr ""
+
+#: inc/demo/demo-content.php:973
+msgid "It will not change a setting you have already chosen."
+msgstr ""
+
+#: inc/demo/demo-content.php:974
+msgid ""
+"It will not let any of this reach Google. Every demo story is marked no-"
+"index and kept out of your sitemap."
+msgstr ""
+
+#: inc/demo/demo-content.php:979
+msgid "This site already has content."
+msgstr ""
+
+#: inc/demo/demo-content.php:984
+#, php-format
+msgid ""
+"There are at least %d posts or pages here already. Demo content is meant for "
+"a site you are still setting up. Nothing of yours will be harmed, and "
+"everything can be removed again in one press — but on a site people are "
+"reading, the demo stories will appear on your front page until you remove "
+"them."
+msgstr ""
+
+#: inc/demo/demo-content.php:995
+msgid "Import demo content"
+msgstr ""
+
+#: inc/demo/demo-data.php:36
+msgid "Reading This Theme"
+msgstr ""
+
+#: inc/demo/demo-data.php:37
+msgid ""
+"How the front page, the article page and the furniture are put together."
+msgstr ""
+
+#: inc/demo/demo-data.php:40
+msgid "On The Record"
+msgstr ""
+
+#: inc/demo/demo-data.php:41
+msgid "Corrections, update logs and editorial labelling."
+msgstr ""
+
+#: inc/demo/demo-data.php:44
+msgid "The Desk"
+msgstr ""
+
+#: inc/demo/demo-data.php:45
+msgid "Settings, housekeeping and what to do before you publish for real."
+msgstr ""
+
+#: inc/demo/demo-data.php:79
+msgid "Start here: how this front page is built"
+msgstr ""
+
+#: inc/demo/demo-data.php:80
+msgid ""
+"The story you are reading is the lead. Everything to its right is the brief "
+"rail. Below, the edition runs in ruled columns. Here is what controls each "
+"part."
+msgstr ""
+
+#: inc/demo/demo-data.php:130
+msgid "How a correction is published on this site"
+msgstr ""
+
+#: inc/demo/demo-data.php:131
+msgid ""
+"Most sites edit a story quietly and hope nobody noticed. This one keeps a "
+"log under the byline. Scroll up: this story carries three entries."
+msgstr ""
+
+#: inc/demo/demo-data.php:142
+msgid ""
+"An earlier version of this story said the update log appears at the foot of "
+"the article. It appears under the byline, above the body text."
+msgstr ""
+
+#: inc/demo/demo-data.php:147
+msgid ""
+"Added that the newest entry becomes the story's dateModified in its "
+"structured data."
+msgstr ""
+
+#: inc/demo/demo-data.php:152
+msgid ""
+"Third entry, added to show how a log of several entries reads. They print "
+"oldest first."
+msgstr ""
+
+#: inc/demo/demo-data.php:195
+msgid "Labelling opinion, analysis and sponsored work"
+msgstr ""
+
+#: inc/demo/demo-data.php:196
+msgid ""
+"Reporting and opinion should not look identical. This story is labelled "
+"Analysis; the label prints beside the section name above the headline."
+msgstr ""
+
+#: inc/demo/demo-data.php:232
+msgid "The furniture: key points, contents and comparison tables"
+msgstr ""
+
+#: inc/demo/demo-data.php:233
+msgid ""
+"A long story needs somewhere for a hurried reader to land. These are the "
+"blocks that give them one, and where to find each in the editor."
+msgstr ""
+
+#: inc/demo/demo-data.php:298
+msgid "Light, dark, and letting readers choose"
+msgstr ""
+
+#: inc/demo/demo-data.php:299
+msgid ""
+"New in version 4.0. The control sits in the masthead beside search. Here is "
+"what each of the three settings does, and which one to make your default."
+msgstr ""
+
+#: inc/demo/demo-data.php:342
+msgid "Writing a headline, a kicker and a deck"
+msgstr ""
+
+#: inc/demo/demo-data.php:343
+msgid ""
+"Three short pieces of text sit above every story. Each does a different job, "
+"and the layout was drawn assuming you would write all three."
+msgstr ""
+
+#: inc/demo/demo-data.php:391
+msgid "Before you publish for real"
+msgstr ""
+
+#: inc/demo/demo-data.php:392
+msgid ""
+"A short list of things to set, and one button to press, before this demo "
+"content stops being helpful and starts being embarrassing."
+msgstr ""
+
+#: inc/demo/demo-data.php:446
+msgid "About this paper"
+msgstr ""
+
+#: inc/demo/demo-data.php:455
+msgid "Corrections policy"
+msgstr ""
+
+#: inc/demo/demo-data.php:468
+msgid "Contact the desk"
+msgstr ""
+
+#: inc/seo.php:67
+#, php-format
+msgid "Stories matching %s"
+msgstr ""
+
+#: inc/starter-content.php:22
+msgctxt "Theme starter content"
+msgid "About this paper"
+msgstr ""
+
+#: inc/starter-content.php:23
+msgctxt "Theme starter content"
+msgid ""
+"Who writes here, what this paper covers, and how corrections are handled."
+msgstr ""
+
+#: inc/starter-content.php:27
+msgctxt "Theme starter content"
+msgid "Contact the desk"
+msgstr ""
+
+#: inc/starter-content.php:38
+msgctxt "Theme starter content"
+msgid "Online edition"
+msgstr ""
+
+#: inc/starter-content.php:39
+msgctxt "Theme starter content"
+msgid "The world, in its draft form"
+msgstr ""
+
+#: inc/starter-content.php:50
+msgctxt "Theme starter content"
+msgid "Sections"
+msgstr ""
+
+#: inc/starter-content.php:58
+msgctxt "Theme starter content"
+msgid "The paper"
+msgstr ""
+
+#: inc/template-tags.php:259
+msgid "Opinion"
+msgstr ""
+
+#: inc/template-tags.php:260
+msgid "Analysis"
+msgstr ""
+
+#: inc/template-tags.php:261
+msgid "Interview"
+msgstr ""
+
+#: inc/template-tags.php:262
+msgid "Review"
+msgstr ""
+
+#: inc/template-tags.php:263
+msgid "Explainer"
+msgstr ""
+
+#: inc/template-tags.php:264
+msgid "Sponsored"
+msgstr ""
+
+#: inc/template-tags.php:315
+msgid "Rev."
+msgstr ""
+
+#: inc/template-tags.php:341
+#, php-format
+msgctxt "byline"
+msgid "%1$s and %2$s"
+msgstr ""
+
+#: inc/template-tags.php:357
+msgid "By"
+msgstr ""
+
+#: inc/template-tags.php:363
+#, php-format
+msgid "and %s"
+msgstr ""
+
+#: inc/template-tags.php:378
+#, php-format
+msgid "Revised %s"
+msgstr ""
+
+#: inc/template-tags.php:390
+#, php-format
+msgid "%d min read"
+msgstr ""
+
+#: inc/template-tags.php:414
+#, php-format
+msgid "%s reads"
+msgstr ""
+
+#: inc/template-tags.php:509
+msgid "Earlier Stories"
+msgstr ""
+
+#: inc/template-tags.php:513
+msgid "More in this Section"
+msgstr ""
+
+#: inc/template-tags.php:516
+msgid "More from this Edition"
+msgstr ""
+
+#: inc/template-tags.php:556 inc/template-tags.php:582
+msgid "Posts"
+msgstr ""
+
+#: inc/template-tags.php:561
+msgid "Load more stories"
+msgstr ""
+
+#: inc/template-tags.php:563
+msgid "Next page"
+msgstr ""
+
+#: inc/template-tags.php:609
+msgid "Home"
+msgstr ""
+
+#: inc/template-tags.php:651
+#, php-format
+msgid "Search: %s"
+msgstr ""
+
+#: inc/template-tags.php:679
+msgid "Breadcrumb"
+msgstr ""
+
+#: inc/template-tags.php:829
+msgid "Awaiting moderation."
+msgstr ""
+
+#: inc/template-tags.php:840
+msgid "Reply"
+msgstr ""
+
+#: index.php:20
+msgid "Nothing filed"
+msgstr ""
+
+#: index.php:21
+msgid "No stories have run yet"
+msgstr ""
+
+#: index.php:22
+msgid "Publish a post and it will lead this page."
+msgstr ""
+
+#: page.php:28
+#, php-format
+msgid "Last updated %s"
+msgstr ""
+
+#: page.php:56
+msgid "Page sections"
+msgstr ""
+
+#: patterns/correction.php:14
+msgctxt "Theme pattern text"
+msgid "Correction:"
+msgstr ""
+
+#: patterns/correction.php:14
+msgctxt "Theme pattern text"
+msgid ""
+"An earlier version of this story gave the wrong figure for the number of "
+"relief camps. It has been corrected to 214."
+msgstr ""
+
+#: patterns/fact-box.php:14
+msgctxt "Theme pattern text"
+msgid "The numbers"
+msgstr ""
+
+#: patterns/fact-box.php:20
+msgctxt "Theme pattern text"
+msgid "7.05 lakh"
+msgstr ""
+
+#: patterns/fact-box.php:20
+msgctxt "Theme pattern text"
+msgid "people affected across four districts"
+msgstr ""
+
+#: patterns/fact-box.php:23
+msgctxt "Theme pattern text"
+msgid "214"
+msgstr ""
+
+#: patterns/fact-box.php:23
+msgctxt "Theme pattern text"
+msgid "relief camps opened since Friday"
+msgstr ""
+
+#: patterns/fact-box.php:26
+msgctxt "Theme pattern text"
+msgid "4"
+msgstr ""
+
+#: patterns/fact-box.php:26
+msgctxt "Theme pattern text"
+msgid "gauging stations above the danger mark"
+msgstr ""
+
+#: patterns/fact-box.php:32
+msgctxt "Theme pattern text"
+msgid "Source: state disaster management authority bulletin, 07:00 IST"
+msgstr ""
+
+#: patterns/pull-quote.php:14
+msgctxt "Theme pattern text"
+msgid ""
+"The alert chain still ends at the district level — a gap identified after "
+"last year’s floods that has not yet been closed."
+msgstr ""
+
+#: patterns/pull-quote.php:16
+msgctxt "Theme pattern text"
+msgid "State disaster management authority, in its own review"
+msgstr ""
+
+#: patterns/section-divider.php:16
+msgctxt "Theme pattern text"
+msgid "National Affairs"
+msgstr ""
+
+#: patterns/standfirst.php:12
+msgctxt "Theme pattern text"
+msgid ""
+"More than seven lakh people are affected as the river breaches embankments "
+"across four districts."
+msgstr ""
+
+#: patterns/standfirst.php:20
+msgctxt "Theme pattern text"
+msgid ""
+"Open here. The first paragraph carries the drop cap, so give it a full "
+"sentence that can stand on its own."
+msgstr ""
+
+#: search.php:22
+#, php-format
+msgid "Results for %s"
+msgstr ""
+
+#: search.php:31
+#, php-format
+msgid "%s match"
+msgid_plural "%s matches"
+msgstr[0] ""
+msgstr[1] ""
+
+#: search.php:50
+msgid ""
+"No stories matched that. Try a shorter phrase, or pick a section from the "
+"menu."
+msgstr ""
+
+#: searchform.php:12 searchform.php:16
+msgid "Search stories"
+msgstr ""
+
+#: searchform.php:17
+msgid "Find"
+msgstr ""
+
+#: sidebar.php:12
+msgid "More from this paper"
+msgstr ""
+
+#: single.php:80
+msgid "Story pages"
+msgstr ""
+
+#: single.php:94
+msgid "Filed under"
+msgstr ""
+
+#: single.php:111
+msgid "Story order"
+msgstr ""
+
+#: single.php:114
+msgid "Earlier"
+msgstr ""
+
+#: single.php:120
+msgid "Later"
+msgstr ""
+
+#: template-parts/author-bio.php:26
+msgid "All stories by this writer"
+msgstr ""
+
+#: template-parts/edition.php:59
+msgid "In brief"
+msgstr ""
+
+#: template-parts/edition.php:60
+msgid "In Brief"
+msgstr ""
+
+#: template-parts/edition.php:70
+msgid "Also Today"
+msgstr ""
+
+#: template-parts/edition.php:100
+#, php-format
+msgid "%s filed"
+msgstr ""
+
+#: template-parts/edition.php:123
+msgid "Standing Matter"
+msgstr ""
+
+#: template-parts/lede.php:52
+msgid "Continue reading"
+msgstr ""
+
+#: template-parts/newsletter-bar.php:23
+msgid "One email when something matters. No daily digest, no noise."
+msgstr ""
+
+#: template-parts/newsletter-bar.php:37
+msgid "Your email address"
+msgstr ""
+
+#: template-parts/newsletter-bar.php:40
+msgid "you@example.com"
+msgstr ""
+
+#: template-parts/newsletter-bar.php:44
+msgid "Leave this empty"
+msgstr ""
+
+#: template-parts/newsletter-bar.php:48 template-parts/newsletter.php:19
+msgid "Subscribe"
+msgstr ""
+
+#: template-parts/newsletter.php:16
+msgid "By Email"
+msgstr ""
+
+#: template-parts/read-next.php:19
+msgid "Read Next"
+msgstr ""
+
+#: template-parts/slider.php:50 template-parts/tabs.php:22
+msgid "Latest"
+msgstr ""
+
+#: template-parts/slider.php:53
+msgid "Scroll left"
+msgstr ""
+
+#: template-parts/slider.php:54
+msgid "Scroll right"
+msgstr ""
+
+#: template-parts/slider.php:59
+msgid "Latest stories, scrollable"
+msgstr ""
+
+#: template-parts/tabs.php:35
+msgid "Popular"
+msgstr ""
+
+#: template-parts/tabs.php:39
+msgid "Trending"
+msgstr ""
+
+#: template-parts/tabs.php:55
+msgid "Stories by popularity"
+msgstr ""
+
+#: template-parts/tabs.php:57
+msgid "Story lists"
+msgstr ""
+
+#: template-parts/timeline.php:83
+msgid "you are here"
+msgstr ""
+
+#: template-parts/timeline.php:94
+#, php-format
+msgid "Part %d of this story"
+msgstr ""
+
+#: template-parts/timeline.php:110
+msgid "This Story So Far"
+msgstr ""
+
+#: template-parts/timeline.php:115
+#, php-format
+msgid "%1$d of %2$d"
+msgstr ""
+
+#: template-parts/timeline.php:127
+#, php-format
+msgid "The %s story, in the order it happened."
+msgstr ""
+
+#: template-parts/timeline.php:148
+#, php-format
+msgid "%d earlier article"
+msgid_plural "%d earlier articles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: template-parts/update-log.php:27
+#, php-format
+msgid "%s update to this story"
+msgid_plural "%s updates to this story"
+msgstr[0] ""
+msgstr[1] ""
