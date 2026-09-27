@@ -7,14 +7,17 @@
 
 	/* ---- Cookie consent ---------------------------------------------
 	 *
-	 * The banner markup is always in the page, hidden. The decision about
-	 * whether to SHOW it happens here, in the reader's own browser, by
-	 * reading their cookie.
+	 * Everything is decided here, in the reader's own browser, because the
+	 * page itself is usually a cached copy that is identical for everyone.
 	 *
-	 * This is deliberate. If PHP decided, a page cache would freeze that
-	 * decision into the saved HTML and serve it to everybody — so the banner
-	 * would keep reappearing after someone accepted it.
+	 * The head script printed by inc/consent.php has already told Google
+	 * Consent Mode what this reader chose last time. This part shows the
+	 * banner to readers who have not answered, applies a new answer at once
+	 * (no reload), and lets anyone reopen the banner through a link to
+	 * #cookie-settings or [data-ld-consent-open].
 	 * ------------------------------------------------------------------ */
+
+	var consentConfig = window.ldConsentConfig || {};
 
 	function readConsent() {
 		var match = document.cookie.match(/(?:^|;\s*)ld_consent=(yes|no)/);
@@ -32,49 +35,106 @@
 			';SameSite=Lax' + secure;
 	}
 
+	// Strict mode ships Google's tag as inert text/plain. Make it real.
+	function activateGatedScripts() {
+		var inert = document.querySelectorAll('script[type="text/plain"][data-ld-consent-src]');
+		Array.prototype.forEach.call(inert, function (old) {
+			var live = document.createElement('script');
+			Array.prototype.forEach.call(old.attributes, function (attr) {
+				if (attr.name !== 'type' && attr.name !== 'data-ld-consent-src') {
+					live.setAttribute(attr.name, attr.value);
+				}
+			});
+			live.async = true;
+			live.src = old.getAttribute('data-ld-consent-src');
+			old.parentNode.replaceChild(live, old);
+		});
+	}
+
+	// Withdrawing consent should also remove what was stored under it.
+	function clearAnalyticsCookies() {
+		var host = location.hostname;
+		var parts = host.split('.');
+		var domains = [''];
+		for (var i = 0; i < parts.length - 1; i++) {
+			domains.push(';domain=.' + parts.slice(i).join('.'));
+		}
+		document.cookie.split(';').forEach(function (pair) {
+			var name = pair.split('=')[0].trim();
+			if (/^(_ga|_gid|_gat|_gcl)/.test(name)) {
+				domains.forEach(function (d) {
+					document.cookie = name + '=;path=/;max-age=0;expires=Thu, 01 Jan 1970 00:00:00 GMT' + d;
+				});
+			}
+		});
+	}
+
+	function applyConsent(choice, isNewAnswer) {
+		var yes = choice === 'yes';
+		var ads = yes && !!consentConfig.ads;
+
+		if (isNewAnswer && typeof window.gtag === 'function') {
+			window.gtag('consent', 'update', {
+				analytics_storage: yes ? 'granted' : 'denied',
+				ad_storage: ads ? 'granted' : 'denied',
+				ad_user_data: ads ? 'granted' : 'denied',
+				ad_personalization: ads ? 'granted' : 'denied'
+			});
+		}
+
+		// Tell the WP Consent API too, if that plugin is installed, so
+		// Site Kit's own consent handling agrees with this banner.
+		if (isNewAnswer && typeof window.wp_set_consent === 'function') {
+			window.wp_set_consent('statistics', yes ? 'allow' : 'deny');
+			window.wp_set_consent('marketing', ads ? 'allow' : 'deny');
+		}
+
+		if (yes) {
+			activateGatedScripts();
+		} else if (isNewAnswer) {
+			clearAnalyticsCookies();
+		}
+	}
+
 	var banner = document.querySelector('[data-ld-consent-banner]');
 
 	if (banner) {
 		var answered = readConsent();
 
 		if (answered) {
-			// Already decided. Take it out of the page entirely.
-			banner.remove();
+			// Consent Mode already knows (the head script read the cookie).
+			// Only strict mode still has a script to switch on.
+			applyConsent(answered, false);
 		} else {
 			banner.hidden = false;
-
-			banner.addEventListener('click', function (event) {
-				var button = event.target.closest('[data-ld-consent]');
-				if (!button) {
-					return;
-				}
-
-				var choice = button.getAttribute('data-ld-consent');
-				writeConsent(choice);
-
-				// Did it actually stick? Some privacy modes block cookies
-				// outright. Better to hide the banner than to nag forever.
-				var stored = readConsent();
-				banner.remove();
-
-				/*
-				 * Accepting needs one reload, because the analytics script was
-				 * never put on the page. The flag stops that becoming a loop
-				 * if a cache serves the same copy back.
-				 */
-				if (choice === 'yes' && stored === 'yes') {
-					try {
-						if (!window.sessionStorage.getItem('ldConsentReload')) {
-							window.sessionStorage.setItem('ldConsentReload', '1');
-							window.location.reload();
-						}
-					} catch (e) {
-						// sessionStorage unavailable; skip the reload rather
-						// than risk reloading over and over.
-					}
-				}
-			});
 		}
+
+		banner.addEventListener('click', function (event) {
+			var button = event.target.closest('[data-ld-consent]');
+			if (!button) {
+				return;
+			}
+
+			var choice = button.getAttribute('data-ld-consent');
+			writeConsent(choice);
+			banner.hidden = true;
+			applyConsent(choice, true);
+		});
+
+		// "Cookie settings" links: a menu item pointing at #cookie-settings,
+		// or anything carrying data-ld-consent-open.
+		document.addEventListener('click', function (event) {
+			var opener = event.target.closest('[data-ld-consent-open], a[href$="#cookie-settings"]');
+			if (!opener) {
+				return;
+			}
+			event.preventDefault();
+			banner.hidden = false;
+			var first = banner.querySelector('[data-ld-consent]');
+			if (first) {
+				first.focus();
+			}
+		});
 	}
 
 	/* ---- Table of contents ------------------------------------------ */

@@ -1,6 +1,6 @@
 === The Living Draft Core ===
-Version: 4.6.0
-Stable tag: 4.6.0
+Version: 4.7.0
+Stable tag: 4.7.0
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.2
@@ -55,6 +55,48 @@ chain. If you're still on PHP 7.4 / 8.0 / 8.1 and can't update,
 install the 3.1.x line, which supports PHP 7.4 and up.
 
 == Changelog ==
+
+= 4.7.0 =
+* NEW: Link assistant, a panel on every article's edit screen.
+  One button reads the article as it stands in the editor and suggests
+  internal links on other articles' focus keywords, each as a small
+  Before / After rewrite to Accept or Skip.
+* Link limit: one link per 175 words by default (Settings > Link
+  assistant). Existing links, internal and external, count. An article
+  that is already full gets no suggestions.
+* Reliability score for every target, with reasons: topic match (from
+  the existing embeddings), keyword present, freshness, Google position,
+  readership, and a boost for articles nothing links to yet. Noindexed,
+  unpublished and password-protected articles are never suggested;
+  articles carrying a correction are marked.
+* Every AI suggestion is checked before it is shown: the sentence must
+  exist word for word, the rewrite must stay close to the original, the
+  link text must be the target's keyword or a close form, one link per
+  target and per paragraph. Headings, quotes, lists, captions, tables and
+  the plugin's own boxes are never touched.
+* Warns when another article uses the same focus keyword.
+* Nothing is saved until you press Update, and nothing is written to the
+  update log.
+
+= 4.6.1 =
+* FIX: Google Analytics recorded almost no visitors on cached sites.
+  The consent banner removed Site Kit's tag in PHP, so the cached copy
+  of every page had no tag in it, even for readers who pressed Accept.
+  The decision now happens in the browser with Google Consent Mode v2,
+  so cached pages behave correctly for everyone.
+* FIX: Site Kit's consent-mode script is no longer removed.
+* CHANGE: Accept takes effect immediately; no page reload.
+* NEW: Settings > Analytics & consent. Choose "Measure anonymously"
+  (cookieless pings before consent, the default) or "Load nothing from
+  Google" (tag downloaded only after Accept). Optional advertising
+  consent, off by default.
+* NEW: readers can change their choice. Add a menu link to
+  #cookie-settings, or use the [ld_cookie_settings] shortcode.
+  Declining after accepting also deletes Google Analytics cookies.
+* CHANGE: removed the per-cookie cache split (LiteSpeed/WP Rocket vary
+  and the Vary: Cookie header). It is no longer needed and was lowering
+  cache hit rates.
+* FIX: caches are now purged after an update, not only on activation.
 
 = 4.6.0 =
 * NEW: credential diagnostics on Settings > Mail. A "Check this

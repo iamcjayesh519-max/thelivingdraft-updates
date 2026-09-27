@@ -3,7 +3,7 @@
  * Plugin Name: The Living Draft Core
  * Plugin URI:  https://thelivingdraft.com
  * Description: The parts of this site that must survive a theme change: the update log, editorial labels, second bylines, view counting, newsletter subscribers, cookie consent, the article blocks, redirections, custom CSS, plus a full AI-powered SEO stack (metabox, sitemaps, schema, Rank Math bridge) and Google Search Console integration.
- * Version:     4.6.0
+ * Version:     4.7.0
  * Author:      The Living Draft
  * License:     GPL-2.0-or-later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -178,7 +178,7 @@ if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
 	return;
 }
 
-define( 'LIVINGDRAFT_CORE_VERSION', '4.6.0' );
+define( 'LIVINGDRAFT_CORE_VERSION', '4.7.0' );
 define( 'LIVINGDRAFT_CORE_FILE', __FILE__ );
 define( 'LIVINGDRAFT_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LIVINGDRAFT_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -239,6 +239,10 @@ require_once LIVINGDRAFT_CORE_DIR . 'inc/seo/content-brief.php';
 // cosine-similarity search, related-posts strip in the SEO metabox,
 // batch reindexer under SEO → Links.
 require_once LIVINGDRAFT_CORE_DIR . 'inc/seo/internal-links.php';
+
+// v4.7.0: Link assistant — AI-suggested internal links on focus keywords,
+// capped at one link per N words. Needs internal-links.php (above).
+require_once LIVINGDRAFT_CORE_DIR . 'inc/seo/link-assistant.php';
 
 // v3.3.0: additional SEO modules.
 //   verification         — Site verification meta tags (Google Search

@@ -245,6 +245,7 @@
 
 /* --- Cookie banner ------------------------------------------------------ */
 
+.ld-consent[hidden] { display: none !important; }
 .ld-consent {
   position: fixed;
   left: 0; right: 0; bottom: 0;

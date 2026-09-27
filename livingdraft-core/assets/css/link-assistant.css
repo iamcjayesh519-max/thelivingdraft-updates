@@ -1,0 +1,30 @@
+/*
+ * Link assistant panel on the post edit screen.
+ * Scoped to .ld-la so nothing leaks into the rest of the editor.
+ */
+.ld-la { font-size: 13px; line-height: 1.55; color: #1a1a1a; }
+.ld-la-status { margin: 0 0 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color: #555; }
+.ld-la-hint { margin-left: 8px; color: #666; font-size: 12px; }
+.ld-la-note { color: #555; margin: 8px 0; }
+.ld-la-error { color: #a3271f; margin: 8px 0; }
+.ld-la-results { margin-top: 12px; }
+.ld-la-label { display: block; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #777; margin: 8px 0 2px; }
+.ld-la-intent, .ld-la-warn { border-left: 3px solid #1a1a1a; background: #faf8f3; padding: 8px 12px; margin: 0 0 12px; }
+.ld-la-warn { border-left-color: #b7791f; }
+.ld-la-warn ul { margin: 4px 0 0 18px; list-style: disc; }
+.ld-la-intent p, .ld-la-warn p { margin: 0; }
+.ld-la-card { border: 1px solid #ddd; border-radius: 3px; padding: 10px 12px; margin: 0 0 10px; background: #fff; }
+.ld-la-card.is-accepted { border-color: #2f7a4b; background: #f3faf5; }
+.ld-la-card.is-skipped { opacity: .55; }
+.ld-la-card.is-failed { border-color: #a3271f; }
+.ld-la-target { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.ld-la-target .ld-la-label { display: inline; margin: 0; }
+.ld-la-target a { font-weight: 600; }
+.ld-la-score { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; color: #555; }
+.ld-la-reasons { margin: 4px 0 0; font-size: 12px; color: #2f7a4b; }
+.ld-la-why { margin: 4px 0 0; font-style: italic; color: #444; }
+.ld-la-before { margin: 0; color: #666; text-decoration: line-through; text-decoration-color: rgba(163, 39, 31, .5); }
+.ld-la-after { margin: 0; }
+.ld-la-anchor { background: #fff1b8; padding: 0 2px; text-decoration: underline; }
+.ld-la-actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.ld-la-result { font-size: 12px; color: #555; }
