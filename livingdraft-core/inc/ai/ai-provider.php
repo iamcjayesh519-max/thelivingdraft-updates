@@ -78,18 +78,32 @@ function livingdraft_ai_complete( $prompt, $args = array() ) {
 	// configured in Settings when not specified. The key still comes
 	// from the chosen provider's own stored credential.
 	$provider = '' !== $args['provider'] ? $args['provider'] : $settings['provider'];
-	if ( ! in_array( $provider, array( 'openai', 'gemini', 'openrouter', 'groq' ), true ) ) {
+	if ( ! in_array( $provider, livingdraft_ai_provider_ids(), true ) ) {
 		$provider = $settings['provider'];
 	}
 
 	$key = livingdraft_ai_get_key( $provider );
+
+	// v4.9.0: active provider has no key but another one does — use it
+	// rather than fail, when fallback is on.
+	if ( '' === $key && ! empty( $settings['fallback'] ) && empty( $args['no_fallback'] ) ) {
+		foreach ( livingdraft_ai_fallback_order() as $candidate ) {
+			$candidate_key = livingdraft_ai_get_key( $candidate );
+			if ( '' !== $candidate_key ) {
+				$provider      = $candidate;
+				$key           = $candidate_key;
+				$args['model'] = '';
+				break;
+			}
+		}
+	}
 
 	if ( '' === $key ) {
 		return new WP_Error(
 			'ld_ai_no_key',
 			sprintf(
 				/* translators: %s: provider name. */
-				__( 'No API key configured for %s. Add one in The Living Draft → SEO → AI.', 'livingdraft-core' ),
+				__( 'No API key configured for %s. Add one in The Living Draft → Settings → AI.', 'livingdraft-core' ),
 				$provider
 			)
 		);
@@ -118,6 +132,96 @@ function livingdraft_ai_complete( $prompt, $args = array() ) {
 
 	$model = $args['model'] ?: livingdraft_ai_default_model( $provider );
 
+	$result = livingdraft_ai_dispatch( $provider, $key, $model, $prompt, $args );
+
+	/*
+	 * v4.9.0: automatic fallback. If the chosen provider fails (outage,
+	 * quota, bad model name) and Settings → AI → "Fall back" is on, the
+	 * same prompt goes to the next provider that has a key, in the order
+	 * set there. The caller never has to know. A caller that pinned a
+	 * provider on purpose can pass 'no_fallback' => true.
+	 */
+	if ( is_wp_error( $result ) && empty( $args['no_fallback'] ) && ! empty( $settings['fallback'] ) ) {
+		$tried = array( $provider );
+		foreach ( livingdraft_ai_fallback_order() as $next ) {
+			if ( in_array( $next, $tried, true ) ) {
+				continue;
+			}
+			$next_key = livingdraft_ai_get_key( $next );
+			if ( '' === $next_key ) {
+				continue;
+			}
+			if ( ! empty( $args['image'] ) && 'groq' === $next ) {
+				continue;
+			}
+			$tried[] = $next;
+			$retry   = livingdraft_ai_dispatch( $next, $next_key, livingdraft_ai_default_model( $next ), $prompt, $args );
+			if ( ! is_wp_error( $retry ) && '' !== trim( (string) $retry ) ) {
+				return $retry;
+			}
+		}
+	}
+
+	return $result;
+}
+
+/**
+ * Every provider id this plugin can talk to.
+ *
+ * @since 4.9.0
+ * @return string[]
+ */
+function livingdraft_ai_provider_ids() {
+	return array( 'openai', 'gemini', 'xai', 'openrouter', 'groq' );
+}
+
+/**
+ * Display names.
+ *
+ * @since 4.9.0
+ * @return array
+ */
+function livingdraft_ai_provider_labels() {
+	return array(
+		'openai'     => 'OpenAI',
+		'gemini'     => 'Google Gemini',
+		'xai'        => 'xAI Grok',
+		'openrouter' => 'OpenRouter',
+		'groq'       => 'Groq',
+	);
+}
+
+/**
+ * Fallback order: the saved order, then any keyed provider not listed.
+ *
+ * @since 4.9.0
+ * @return string[]
+ */
+function livingdraft_ai_fallback_order() {
+	$s     = livingdraft_ai_get_settings();
+	$order = array_filter( array_map( 'trim', explode( ',', (string) $s['fallback_order'] ) ) );
+	$order = array_values( array_intersect( $order, livingdraft_ai_provider_ids() ) );
+	foreach ( livingdraft_ai_provider_ids() as $p ) {
+		if ( ! in_array( $p, $order, true ) ) {
+			$order[] = $p;
+		}
+	}
+	return $order;
+}
+
+/**
+ * Send one request to one provider.
+ *
+ * @since 4.9.0
+ * @param string $provider Provider.
+ * @param string $key      Key.
+ * @param string $model    Model.
+ * @param string $prompt   Prompt.
+ * @param array  $args     Args.
+ * @return string|WP_Error
+ */
+function livingdraft_ai_dispatch( $provider, $key, $model, $prompt, $args ) {
+
 	switch ( $provider ) {
 		case 'openai':
 			return livingdraft_ai_call_openai( $key, $model, $prompt, $args );
@@ -130,6 +234,9 @@ function livingdraft_ai_complete( $prompt, $args = array() ) {
 
 		case 'groq':
 			return livingdraft_ai_call_groq( $key, $model, $prompt, $args );
+
+		case 'xai':
+			return livingdraft_ai_call_xai( $key, $model, $prompt, $args );
 	}
 
 	return new WP_Error( 'ld_ai_unknown_provider', __( 'Unknown AI provider.', 'livingdraft-core' ) );
@@ -158,39 +265,145 @@ function livingdraft_ai_call_openai( $key, $model, $prompt, $args ) {
 		'content' => livingdraft_ai_build_user_content( $prompt, $args['image'], 'openai' ),
 	);
 
-	$response = wp_remote_post(
-		'https://api.openai.com/v1/chat/completions',
-		array(
-			'timeout' => 45, // Vision takes longer than text.
-			'headers' => array(
-				'Authorization' => 'Bearer ' . $key,
-				'Content-Type'  => 'application/json',
-			),
-			'body'    => wp_json_encode(
-				array(
-					'model'       => $model,
-					'messages'    => $messages,
-					'max_tokens'  => (int) $args['max_tokens'],
-					'temperature' => (float) $args['temperature'],
-				)
-			),
-		)
+
+	/*
+	 * v4.9.0: GPT-5.x and o-series are reasoning models. On Chat
+	 * Completions they reject `max_tokens` (it is `max_completion_tokens`
+	 * now, which every current model accepts) and most reject any
+	 * temperature other than the default. Their hidden reasoning also
+	 * counts against the output limit, so a 60-token budget for a meta
+	 * description could come back empty. Reasoning models therefore get
+	 * headroom and low effort; everything else is sent as before.
+	 */
+	$reasoning = (bool) preg_match( '/^(o\d|gpt-5)/i', $model );
+
+	$body = array(
+		'model'                 => $model,
+		'messages'              => $messages,
+		'max_completion_tokens' => $reasoning ? max( 2000, (int) $args['max_tokens'] * 4 ) : (int) $args['max_tokens'],
+	);
+	if ( $reasoning ) {
+		$body['reasoning_effort'] = (string) apply_filters( 'livingdraft_ai_openai_reasoning_effort', 'low', $model );
+	} else {
+		$body['temperature'] = (float) $args['temperature'];
+	}
+
+	return livingdraft_ai_openai_compatible_post( 'https://api.openai.com/v1/chat/completions', $key, $body, 'OpenAI', 60 );
+}
+
+/**
+ * POST to an OpenAI-compatible Chat Completions endpoint, with one
+ * automatic retry that drops any parameter the model says it does not
+ * support (temperature, reasoning_effort, …). Shared by OpenAI and xAI.
+ *
+ * @since 4.9.0
+ * @param string $url     Endpoint.
+ * @param string $key     Bearer key.
+ * @param array  $body    Request body.
+ * @param string $label   Provider name for errors.
+ * @param int    $timeout Seconds.
+ * @return string|WP_Error
+ */
+function livingdraft_ai_openai_compatible_post( $url, $key, $body, $label, $timeout = 60 ) {
+	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
+		$response = wp_remote_post(
+			$url,
+			array(
+				'timeout' => $timeout,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode( $body ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$code    = (int) wp_remote_retrieve_response_code( $response );
+		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 === $code ) {
+			$text = isset( $decoded['choices'][0]['message']['content'] ) ? (string) $decoded['choices'][0]['message']['content'] : '';
+			if ( '' === trim( $text ) ) {
+				$finish = (string) ( $decoded['choices'][0]['finish_reason'] ?? '' );
+				return new WP_Error(
+					'ld_ai_empty',
+					'length' === $finish
+						/* translators: %s: provider */
+						? sprintf( __( '%s used the whole output budget on reasoning and returned no text. Pick a non-reasoning or "mini" model for this task.', 'livingdraft-core' ), $label )
+						/* translators: %s: provider */
+						: sprintf( __( '%s returned an empty response.', 'livingdraft-core' ), $label )
+				);
+			}
+			return trim( $text );
+		}
+
+		$msg   = is_array( $decoded ) && isset( $decoded['error']['message'] ) ? (string) $decoded['error']['message'] : ( is_array( $decoded ) && isset( $decoded['error'] ) && is_string( $decoded['error'] ) ? $decoded['error'] : 'HTTP ' . $code );
+		$param = is_array( $decoded ) && isset( $decoded['error']['param'] ) ? (string) $decoded['error']['param'] : '';
+
+		// One retry without whatever the model refused.
+		if ( 400 === $code && 0 === $attempt ) {
+			$dropped = false;
+			foreach ( array( 'temperature', 'reasoning_effort', 'max_completion_tokens' ) as $p ) {
+				if ( isset( $body[ $p ] ) && ( $param === $p || false !== stripos( $msg, $p ) ) ) {
+					if ( 'max_completion_tokens' === $p ) {
+						$body['max_tokens'] = $body[ $p ];
+					}
+					unset( $body[ $p ] );
+					$dropped = true;
+				}
+			}
+			if ( $dropped ) {
+				continue;
+			}
+		}
+
+		/* translators: 1: provider, 2: HTTP code, 3: message */
+		return new WP_Error( 'ld_ai_http', sprintf( __( '%1$s returned %2$d. %3$s', 'livingdraft-core' ), $label, $code, $msg ) );
+	}
+
+	return new WP_Error( 'ld_ai_http', sprintf( /* translators: %s: provider */ __( '%s request failed.', 'livingdraft-core' ), $label ) );
+}
+
+/**
+ * xAI Grok — OpenAI-compatible Chat Completions.
+ * Docs: https://docs.x.ai
+ *
+ * Vision works with the same image_url content part as OpenAI. xAI has
+ * no embeddings endpoint that this plugin uses, so internal-link
+ * suggestions still need an OpenAI or Gemini key.
+ *
+ * @since 4.9.0
+ * @param string $key    Key.
+ * @param string $model  Model.
+ * @param string $prompt Prompt.
+ * @param array  $args   Args.
+ * @return string|WP_Error
+ */
+function livingdraft_ai_call_xai( $key, $model, $prompt, $args ) {
+	$messages = array();
+	if ( '' !== $args['system'] ) {
+		$messages[] = array( 'role' => 'system', 'content' => $args['system'] );
+	}
+	$messages[] = array(
+		'role'    => 'user',
+		'content' => livingdraft_ai_build_user_content( $prompt, $args['image'] ?? null, 'openai' ),
 	);
 
-	if ( is_wp_error( $response ) ) {
-		return $response;
-	}
+	// Reasoning variants spend output tokens thinking; give them room.
+	$reasoning = ( false === stripos( $model, 'non-reasoning' ) );
 
-	$code = (int) wp_remote_retrieve_response_code( $response );
-	$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+	$body = array(
+		'model'       => $model,
+		'messages'    => $messages,
+		'max_tokens'  => $reasoning ? max( 1500, (int) $args['max_tokens'] * 3 ) : (int) $args['max_tokens'],
+		'temperature' => (float) $args['temperature'],
+	);
 
-	if ( 200 !== $code ) {
-		$msg = is_array( $body ) && isset( $body['error']['message'] ) ? $body['error']['message'] : 'HTTP ' . $code;
-		return new WP_Error( 'ld_ai_openai_error', $msg );
-	}
-
-	$text = isset( $body['choices'][0]['message']['content'] ) ? (string) $body['choices'][0]['message']['content'] : '';
-	return trim( $text );
+	return livingdraft_ai_openai_compatible_post( 'https://api.x.ai/v1/chat/completions', $key, $body, 'Grok', 90 );
 }
 
 /**
@@ -206,10 +419,11 @@ function livingdraft_ai_call_openai( $key, $model, $prompt, $args ) {
  * multimodal — no separate vision endpoint.
  */
 function livingdraft_ai_call_gemini( $key, $model, $prompt, $args ) {
+	// v4.9.0: the key travels in a header, not the URL, so it never lands
+	// in a proxy or server access log.
 	$url = sprintf(
-		'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s',
-		rawurlencode( $model ),
-		rawurlencode( $key )
+		'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent',
+		rawurlencode( $model )
 	);
 
 	$parts = array( array( 'text' => $prompt ) );
@@ -225,7 +439,9 @@ function livingdraft_ai_call_gemini( $key, $model, $prompt, $args ) {
 	$body = array(
 		'contents'         => array( array( 'parts' => $parts ) ),
 		'generationConfig' => array(
-			'maxOutputTokens' => (int) $args['max_tokens'],
+			// Gemini 2.5+/3.x "think" first, and thinking counts against
+			// this limit — without headroom short tasks return nothing.
+			'maxOutputTokens' => preg_match( '/gemini-(2\.5|[3-9])/i', $model ) ? (int) $args['max_tokens'] + 2048 : (int) $args['max_tokens'],
 			'temperature'     => (float) $args['temperature'],
 		),
 	);
@@ -250,7 +466,10 @@ function livingdraft_ai_call_gemini( $key, $model, $prompt, $args ) {
 		$url,
 		array(
 			'timeout' => 120, // Grounded calls take longer than plain generation.
-			'headers' => array( 'Content-Type' => 'application/json' ),
+			'headers' => array(
+				'Content-Type'   => 'application/json',
+				'x-goog-api-key' => $key,
+			),
 			'body'    => wp_json_encode( $body ),
 		)
 	);
@@ -526,6 +745,15 @@ function livingdraft_ai_get_settings() {
 			// draft costs three sequential calls, and Groq turns those round
 			// in a fraction of the time a hosted frontier model takes.
 			'model_groq'              => 'llama-3.3-70b-versatile',
+			// v4.9.0: xAI Grok. grok-4.3 is xAI's general workhorse (1M
+			// context, cheaper than the flagship). Retired slugs such as
+			// grok-4-fast still work — xAI redirects them — but name a
+			// current one. Check docs.x.ai/developers/models.
+			'model_xai'               => 'grok-4.3',
+			'models_xai'              => "grok-4.3\ngrok-4.20-non-reasoning\ngrok-4.6\ngrok-4.7",
+			// v4.9.0: try the next keyed provider when one fails.
+			'fallback'                => true,
+			'fallback_order'          => 'gemini,openai,xai,openrouter,groq',
 			// Additional models available in the picker.
 			'models_openai'           => "gpt-5.4-mini\ngpt-5.4-nano\ngpt-5.4\ngpt-4.1-mini\ngpt-4.1",
 			'models_gemini'           => "gemini-3.6-flash\ngemini-3.5-flash-lite\ngemini-3-pro\ngemini-2.5-flash",
@@ -550,6 +778,7 @@ function livingdraft_ai_default_model( $provider ) {
 		case 'gemini':     return $s['model_gemini']     ?: 'gemini-3.6-flash';
 		case 'openrouter': return $s['model_openrouter'] ?: 'openai/gpt-5.4-mini';
 		case 'groq':       return $s['model_groq']       ?: 'llama-3.3-70b-versatile';
+		case 'xai':        return $s['model_xai']        ?: 'grok-4.3';
 	}
 	return '';
 }
@@ -884,7 +1113,9 @@ function livingdraft_ai_available_models() {
 	$providers = array(
 		'openai'     => 'OpenAI',
 		'gemini'     => 'Gemini',
+		'xai'        => 'Grok',
 		'openrouter' => 'OpenRouter',
+		'groq'       => 'Groq',
 	);
 
 	foreach ( $providers as $p => $label ) {
@@ -892,8 +1123,8 @@ function livingdraft_ai_available_models() {
 			continue; // Skip providers with no key.
 		}
 
-		$default = $s[ 'model_' . $p ];
-		$extras  = array_filter( array_map( 'trim', preg_split( '/\r?\n/', (string) $s[ 'models_' . $p ] ) ) );
+		$default = (string) ( $s[ 'model_' . $p ] ?? '' );
+		$extras  = array_filter( array_map( 'trim', preg_split( '/\r?\n/', (string) ( $s[ 'models_' . $p ] ?? '' ) ) ) );
 
 		// Deduplicate: default first, then extras minus anything equal to default.
 		$models = array( $default );
@@ -936,7 +1167,7 @@ function livingdraft_ai_read_request_override() {
 		return array();
 	}
 	list( $provider, $model ) = array_map( 'trim', explode( ':', $val, 2 ) );
-	if ( ! in_array( $provider, array( 'openai', 'gemini', 'openrouter', 'groq' ), true ) ) {
+	if ( ! in_array( $provider, livingdraft_ai_provider_ids(), true ) ) {
 		return array();
 	}
 	if ( '' === $model ) {

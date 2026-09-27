@@ -127,6 +127,11 @@ function livingdraft_views_enqueue_beacon() {
 		return;
 	}
 
+	// 4.9.0: the site-wide tracker counts article reads on the same request.
+	if ( function_exists( 'livingdraft_analytics_enabled' ) && livingdraft_analytics_enabled() && livingdraft_an_ready() ) {
+		return;
+	}
+
 	// The newsroom reading its own work is not readership. Checked here as
 	// well as in the endpoint, so the request is never even made.
 	if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {

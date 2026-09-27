@@ -3,7 +3,7 @@
  * The AI settings screen.
  *
  * Lives under The Living Draft → SEO → AI. The user picks a provider
- * (OpenAI, Gemini, or OpenRouter), pastes their key, and chooses which
+ * (OpenAI, Gemini, xAI Grok, OpenRouter or Groq), pastes their key, and chooses which
  * model to use per provider. A "Test" button fires one real call so
  * they know within two seconds whether the key works.
  *
@@ -34,28 +34,41 @@ function livingdraft_ai_admin_handle_save() {
 	$existing = livingdraft_ai_get_settings();
 
 	$provider = isset( $posted['provider'] ) ? sanitize_key( $posted['provider'] ) : 'openai';
-	if ( ! in_array( $provider, array( 'openai', 'gemini', 'openrouter' ), true ) ) {
+	if ( ! in_array( $provider, livingdraft_ai_provider_ids(), true ) ) {
 		$provider = 'openai';
 	}
 
-	$settings = array(
-		'provider'          => $provider,
-		'model_openai'      => isset( $posted['model_openai'] ) ? sanitize_text_field( $posted['model_openai'] ) : $existing['model_openai'],
-		'model_gemini'      => isset( $posted['model_gemini'] ) ? sanitize_text_field( $posted['model_gemini'] ) : $existing['model_gemini'],
-		'model_openrouter'  => isset( $posted['model_openrouter'] ) ? sanitize_text_field( $posted['model_openrouter'] ) : $existing['model_openrouter'],
-		'models_openai'     => isset( $posted['models_openai'] ) ? sanitize_textarea_field( $posted['models_openai'] ) : $existing['models_openai'],
-		'models_gemini'     => isset( $posted['models_gemini'] ) ? sanitize_textarea_field( $posted['models_gemini'] ) : $existing['models_gemini'],
-		'models_openrouter' => isset( $posted['models_openrouter'] ) ? sanitize_textarea_field( $posted['models_openrouter'] ) : $existing['models_openrouter'],
-		'embedding_model_openai' => isset( $posted['embedding_model_openai'] ) ? sanitize_text_field( $posted['embedding_model_openai'] ) : $existing['embedding_model_openai'],
-		'embedding_model_gemini' => isset( $posted['embedding_model_gemini'] ) ? sanitize_text_field( $posted['embedding_model_gemini'] ) : $existing['embedding_model_gemini'],
-	);
+	// Start from what is stored, so fields not on this form (and future
+	// ones) are never wiped by a save.
+	$settings             = $existing;
+	$settings['provider'] = $provider;
+
+	foreach ( livingdraft_ai_provider_ids() as $p ) {
+		if ( isset( $posted[ 'model_' . $p ] ) ) {
+			$settings[ 'model_' . $p ] = sanitize_text_field( $posted[ 'model_' . $p ] );
+		}
+		if ( isset( $posted[ 'models_' . $p ] ) ) {
+			$settings[ 'models_' . $p ] = sanitize_textarea_field( $posted[ 'models_' . $p ] );
+		}
+	}
+	foreach ( array( 'embedding_model_openai', 'embedding_model_gemini' ) as $f ) {
+		if ( isset( $posted[ $f ] ) ) {
+			$settings[ $f ] = sanitize_text_field( $posted[ $f ] );
+		}
+	}
+
+	$settings['fallback'] = ! empty( $posted['fallback'] );
+	if ( isset( $posted['fallback_order'] ) ) {
+		$order = array_intersect( array_map( 'sanitize_key', explode( ',', (string) $posted['fallback_order'] ) ), livingdraft_ai_provider_ids() );
+		$settings['fallback_order'] = implode( ',', array_unique( $order ) );
+	}
 
 	update_option( 'livingdraft_ai_settings', $settings, false );
 
 	// Keys: an empty submitted field means "no change". Only actual text
 	// (not the "•••••" placeholder we render) triggers a rewrite. Users
 	// who want to clear a key type the word "clear".
-	foreach ( array( 'openai', 'gemini', 'openrouter' ) as $p ) {
+	foreach ( livingdraft_ai_provider_ids() as $p ) {
 		if ( ! isset( $posted[ 'key_' . $p ] ) ) {
 			continue;
 		}
@@ -86,20 +99,41 @@ function livingdraft_ai_admin_test() {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permission.', 'livingdraft-core' ) ) );
 	}
 
-	$out = livingdraft_ai_complete(
-		'Reply with the single word: pong',
-		array(
-			'task'        => 'connection_test',
-			'max_tokens'  => 10,
-			'temperature' => 0,
-		)
-	);
-
-	if ( is_wp_error( $out ) ) {
-		wp_send_json_error( array( 'message' => $out->get_error_message() ) );
+	// v4.9.0: test every provider that has a key, each on its own,
+	// without fallback — otherwise a dead key would look healthy.
+	$lines = array();
+	$ok    = false;
+	foreach ( livingdraft_ai_provider_labels() as $p => $label ) {
+		if ( '' === livingdraft_ai_get_key( $p ) ) {
+			continue;
+		}
+		$out = livingdraft_ai_complete(
+			'Reply with the single word: pong',
+			array(
+				'task'        => 'connection_test',
+				'provider'    => $p,
+				'max_tokens'  => 16,
+				'temperature' => 0,
+				'no_fallback' => true,
+			)
+		);
+		if ( is_wp_error( $out ) ) {
+			$lines[] = '✗ ' . $label . ' (' . livingdraft_ai_default_model( $p ) . '): ' . $out->get_error_message();
+		} else {
+			$ok      = true;
+			$lines[] = '✓ ' . $label . ' (' . livingdraft_ai_default_model( $p ) . '): ' . wp_trim_words( $out, 6 );
+		}
 	}
 
-	wp_send_json_success( array( 'message' => sprintf( __( 'OK — model replied: %s', 'livingdraft-core' ), $out ) ) );
+	if ( empty( $lines ) ) {
+		wp_send_json_error( array( 'message' => __( 'No provider has a key yet. Paste one and click Save first.', 'livingdraft-core' ) ) );
+	}
+
+	$payload = array( 'message' => implode( "\n", $lines ) );
+	if ( $ok ) {
+		wp_send_json_success( $payload );
+	}
+	wp_send_json_error( $payload );
 }
 add_action( 'wp_ajax_ld_ai_test', 'livingdraft_ai_admin_test' );
 
@@ -137,11 +171,7 @@ function livingdraft_ai_admin_render_tab() {
 				<label class="tld-label"><?php esc_html_e( 'Active provider', 'livingdraft-core' ); ?></label>
 				<div style="display:flex;gap:8px;flex-wrap:wrap">
 					<?php
-					$options = array(
-						'openai'     => 'OpenAI',
-						'gemini'     => 'Google Gemini',
-						'openrouter' => 'OpenRouter',
-					);
+					$options = livingdraft_ai_provider_labels();
 					foreach ( $options as $val => $label ) :
 						$checked = $val === $s['provider'];
 						?>
@@ -174,12 +204,26 @@ function livingdraft_ai_admin_render_tab() {
 					'model_hint'  => 'gemini-3.6-flash · gemini-3.5-flash-lite · gemini-3-pro',
 					'get_key'  => 'https://aistudio.google.com/apikey',
 				),
+				'xai'        => array(
+					'label'       => 'xAI Grok',
+					'placeholder' => 'xai-...',
+					'model_field' => 'model_xai',
+					'model_hint'  => 'grok-4.3 (everyday, 1M context) · grok-4.20-non-reasoning (fast) · grok-4.6 / grok-4.7 (flagship)',
+					'get_key'     => 'https://console.x.ai',
+				),
 				'openrouter' => array(
 					'label'   => 'OpenRouter',
 					'placeholder' => 'sk-or-...',
 					'model_field' => 'model_openrouter',
 					'model_hint'  => 'openai/gpt-5.4-mini · anthropic/claude-sonnet-5 · google/gemini-3.6-flash',
 					'get_key'  => 'https://openrouter.ai/settings/keys',
+				),
+				'groq'       => array(
+					'label'       => 'Groq',
+					'placeholder' => 'gsk_...',
+					'model_field' => 'model_groq',
+					'model_hint'  => 'llama-3.3-70b-versatile · llama-3.1-8b-instant (text only, very fast)',
+					'get_key'     => 'https://console.groq.com/keys',
 				),
 			);
 			foreach ( $rows as $p => $row ) :
@@ -213,7 +257,7 @@ function livingdraft_ai_admin_render_tab() {
 							<label class="tld-label"><?php esc_html_e( 'Default model', 'livingdraft-core' ); ?></label>
 							<input type="text" class="tld-input is-mono"
 								name="ld_ai[<?php echo esc_attr( $row['model_field'] ); ?>]"
-								value="<?php echo esc_attr( $s[ $row['model_field'] ] ); ?>">
+								value="<?php echo esc_attr( $s[ $row['model_field'] ] ?? '' ); ?>">
 							<p class="tld-help"><?php echo esc_html( $row['model_hint'] ); ?></p>
 						</div>
 					</div>
@@ -227,7 +271,7 @@ function livingdraft_ai_admin_render_tab() {
 						</label>
 						<textarea class="tld-input is-mono" rows="3"
 							name="ld_ai[models_<?php echo esc_attr( $p ); ?>]"
-							placeholder="<?php esc_attr_e( 'One model name per line', 'livingdraft-core' ); ?>"><?php echo esc_textarea( $s[ 'models_' . $p ] ); ?></textarea>
+							placeholder="<?php esc_attr_e( 'One model name per line', 'livingdraft-core' ); ?>"><?php echo esc_textarea( $s[ 'models_' . $p ] ?? '' ); ?></textarea>
 						<p class="tld-help"><?php esc_html_e( 'These populate the "Model" dropdown on every AI-powered surface (brief workspace, metabox buttons, image alt) so you can switch models per invocation. The default above always shows first.', 'livingdraft-core' ); ?></p>
 					</div>
 
@@ -253,6 +297,18 @@ function livingdraft_ai_admin_render_tab() {
 				</div>
 			<?php endforeach; ?>
 
+			<div style="border:1px solid #e5e5e5;padding:16px;margin-bottom:12px;background:#fff">
+				<h4 style="margin:0 0 8px;font-family:var(--tld-serif,Georgia,serif);font-weight:400;font-size:17px"><?php esc_html_e( 'If a provider fails', 'livingdraft-core' ); ?></h4>
+				<label class="tld-check">
+					<input type="checkbox" name="ld_ai[fallback]" value="1" <?php checked( ! empty( $s['fallback'] ) ); ?>>
+					<span><?php esc_html_e( 'Fall back to the next provider that has a key', 'livingdraft-core' ); ?></span>
+				</label>
+				<p class="tld-help"><?php esc_html_e( 'With Gemini, OpenAI and Grok all set, an outage, a spent quota or a retired model name on one of them no longer stops a button from working — the same request goes to the next one.', 'livingdraft-core' ); ?></p>
+				<label class="tld-label" for="ld-ai-fallback-order"><?php esc_html_e( 'Order', 'livingdraft-core' ); ?></label>
+				<input id="ld-ai-fallback-order" type="text" class="tld-input is-mono" name="ld_ai[fallback_order]" value="<?php echo esc_attr( $s['fallback_order'] ); ?>">
+				<p class="tld-help"><?php echo esc_html( sprintf( /* translators: %s: ids */ __( 'Comma-separated. Ids: %s', 'livingdraft-core' ), implode( ', ', livingdraft_ai_provider_ids() ) ) ); ?></p>
+			</div>
+
 			<div style="display:flex;gap:12px;align-items:center;margin-top:16px">
 				<button type="submit" name="ld_ai_save" class="tld-btn is-primary">
 					<?php esc_html_e( 'Save', 'livingdraft-core' ); ?>
@@ -260,7 +316,7 @@ function livingdraft_ai_admin_render_tab() {
 				<button type="button" id="ld-ai-test" class="tld-btn">
 					<?php esc_html_e( 'Test connection', 'livingdraft-core' ); ?>
 				</button>
-				<span id="ld-ai-test-result" style="font-family:var(--tld-mono,monospace);font-size:12px;color:#666"></span>
+				<span id="ld-ai-test-result" style="font-family:var(--tld-mono,monospace);font-size:12px;color:#666;white-space:pre-line"></span>
 			</div>
 		</form>
 	</div>
@@ -284,7 +340,7 @@ function livingdraft_ai_admin_render_tab() {
 						out.textContent = res.data.message;
 						out.style.color = '#2f7a3a';
 					} else {
-						out.textContent = '✗ ' + ( res.data.message || 'Failed.' );
+						out.textContent = ( res.data.message || '✗ Failed.' );
 						out.style.color = '#a32e2e';
 					}
 				} )

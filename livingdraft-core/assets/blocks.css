@@ -243,65 +243,27 @@
 }
 .ld-authorcard > *:last-child { margin-bottom: 0; }
 
-/* --- Cookie banner ------------------------------------------------------ */
-
-.ld-consent[hidden] { display: none !important; }
-.ld-consent {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 9999;
-  background: var(--paper, #fdfdfb);
-  border-top: 3px double var(--ink, #111);
-  padding: 16px 0;
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, .08);
-}
-.ld-consent-inner {
-  max-width: var(--wrap, 1140px);
-  margin: 0 auto;
-  padding: 0 18px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-  justify-content: space-between;
-}
-.ld-consent-text {
-  margin: 0;
-  font-family: var(--serif, Georgia, serif);
-  font-size: 15px;
-  color: var(--ink-2, #4a4a45);
-  max-width: 62ch;
-}
-/* Underlined, not just coloured. A link told apart by colour alone is
-   invisible to a reader with colour blindness — and it was the one thing
-   costing this site a perfect accessibility score. */
-.ld-consent-text a {
-  color: var(--mark, #a3271f);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.ld-consent-actions { display: flex; gap: 10px; flex: none; }
-.ld-consent button {
-  font-family: var(--mono, monospace);
-  font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  padding: 12px 20px;
-  min-height: 44px;
-  cursor: pointer;
-  border: 1px solid var(--ink, #111);
-  background: transparent;
-  color: var(--ink, #111);
-}
-.ld-consent .ld-consent-yes { background: var(--ink, #111); color: var(--paper, #fdfdfb); }
-.ld-consent button:hover { opacity: .86; }
-
 /* --- Custom code block --------------------------------------------------- */
 
 .ld-custom { margin: 1.6em 0; }
 
-@media (max-width: 599px) {
-  .ld-consent-inner { flex-direction: column; align-items: stretch; }
-  .ld-consent-actions { justify-content: stretch; }
-  .ld-consent-actions button { flex: 1; }
+
+/* --- AI key points ("In brief") — used when the theme does not draw its own */
+
+.ld-summary {
+  margin: 0 0 1.6em;
+  padding: 14px 18px 12px;
+  border-top: 3px double var(--ink, #111);
+  border-bottom: 1px solid var(--rule, #d8d5cc);
+  background: color-mix(in srgb, var(--paper, #fdfdfb) 92%, var(--ink, #111));
 }
+.ld-summary-title {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mark, #a3271f);
+  margin: 0 0 6px !important;
+}
+.ld-summary ul { margin: 0; padding-left: 1.1em; }
+.ld-summary li { margin: 0 0 .35em; line-height: 1.5; }

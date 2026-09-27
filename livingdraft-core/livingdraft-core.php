@@ -2,8 +2,8 @@
 /**
  * Plugin Name: The Living Draft Core
  * Plugin URI:  https://thelivingdraft.com
- * Description: The parts of this site that must survive a theme change: the update log, editorial labels, second bylines, view counting, newsletter subscribers, cookie consent, the article blocks, redirections, custom CSS, plus a full AI-powered SEO stack (metabox, sitemaps, schema, Rank Math bridge) and Google Search Console integration.
- * Version:     4.7.0
+ * Description: The parts of this site that must survive a theme change: the update log, editorial labels, second bylines, view counting, newsletter subscribers, site analytics, the article blocks, redirections, custom CSS, plus a full AI-powered SEO stack (metabox, sitemaps, schema, Rank Math bridge) and Google Search Console integration.
+ * Version:     4.9.0
  * Author:      The Living Draft
  * License:     GPL-2.0-or-later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -134,6 +134,22 @@
  * The fact-check panel in the editor no longer renders WordPress's #2271b1
  * blue in the middle of a warm editorial palette.
  *
+ * === v4.8.0 — Redirects you approve ===
+ *
+ * Automatic redirects are proposals now: a changed, unpublished or
+ * deleted story adds an entry under Redirections > Awaiting approval, and
+ * nothing goes live until an editor approves it. Every redirect, from any
+ * source, passes one set of rules in livingdraft_redirects_save():
+ * normalised paths, no loops, one hop, no hidden live stories, a person's
+ * redirect never overwritten. See inc/redirects.php.
+ *
+ * === v4.9.0 — Analytics, no banner, more AI ===
+ *
+ * The cookie banner is gone (inc/consent.php explains what is left and
+ * why). Site-wide first-party analytics live in inc/analytics/. xAI Grok
+ * joins the providers, with automatic fallback between them, and AI key
+ * points ("In brief") are written in inc/ai/ai-summary.php.
+ *
  * === v4.5.0 — Forms ===
  *
  * A contact form, a message store, and the fix for a bug that had been
@@ -178,7 +194,7 @@ if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
 	return;
 }
 
-define( 'LIVINGDRAFT_CORE_VERSION', '4.7.0' );
+define( 'LIVINGDRAFT_CORE_VERSION', '4.9.0' );
 define( 'LIVINGDRAFT_CORE_FILE', __FILE__ );
 define( 'LIVINGDRAFT_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LIVINGDRAFT_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -193,6 +209,9 @@ define( 'LIVINGDRAFT_CORE_URL', plugin_dir_url( __FILE__ ) );
 require_once LIVINGDRAFT_CORE_DIR . 'inc/updates.php';
 require_once LIVINGDRAFT_CORE_DIR . 'inc/seo-bridge.php';
 require_once LIVINGDRAFT_CORE_DIR . 'inc/views.php';
+
+// v4.9.0: site-wide analytics — visits by day, week, month and year.
+require_once LIVINGDRAFT_CORE_DIR . 'inc/analytics/analytics.php';
 require_once LIVINGDRAFT_CORE_DIR . 'inc/newsletter.php';
 require_once LIVINGDRAFT_CORE_DIR . 'inc/consent.php';
 require_once LIVINGDRAFT_CORE_DIR . 'inc/content-schema.php';
@@ -208,6 +227,9 @@ require_once LIVINGDRAFT_CORE_DIR . 'inc/custom.php';
 // files so livingdraft_ai_* functions are defined by the time they are
 // referenced.
 require_once LIVINGDRAFT_CORE_DIR . 'inc/ai/ai-provider.php';
+
+// v4.9.0: AI key points ("In brief") above articles.
+require_once LIVINGDRAFT_CORE_DIR . 'inc/ai/ai-summary.php';
 
 // SEO stack: meta box, front-end output, content analyzer, AJAX bridge.
 require_once LIVINGDRAFT_CORE_DIR . 'inc/seo/seo-meta.php';
@@ -310,6 +332,7 @@ require_once LIVINGDRAFT_CORE_DIR . 'inc/gsc/gsc-diagnostics.php';
 // Loaded last so all module functions are already defined.
 if ( is_admin() ) {
 	require_once LIVINGDRAFT_CORE_DIR . 'inc/admin/menu.php';
+	require_once LIVINGDRAFT_CORE_DIR . 'inc/analytics/analytics-admin.php';
 	require_once LIVINGDRAFT_CORE_DIR . 'inc/ai/ai-admin.php';
 	require_once LIVINGDRAFT_CORE_DIR . 'inc/seo/seo-admin.php';
 	require_once LIVINGDRAFT_CORE_DIR . 'inc/gsc/gsc-admin.php';
@@ -377,6 +400,7 @@ function livingdraft_core_cron_hooks() {
 	return array(
 		// Current.
 		'livingdraft_views_nightly',
+		'livingdraft_analytics_nightly',
 		'livingdraft_timeline_daily',
 		'livingdraft_gsc_daily_refresh',
 		'livingdraft_mail_queue',

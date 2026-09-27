@@ -84,7 +84,9 @@ function livingdraft_seo_attachment_redirect() {
 
 	// Prefer parent post URL — that's where the attachment actually
 	// appears in context.
-	if ( $attachment->post_parent ) {
+	// 4.8.0: only a PUBLISHED parent. A draft or trashed parent's link
+	// would send readers to a 404.
+	if ( $attachment->post_parent && 'publish' === get_post_status( $attachment->post_parent ) ) {
 		$parent_link = get_permalink( $attachment->post_parent );
 		if ( $parent_link ) {
 			$target = $parent_link;
@@ -107,7 +109,12 @@ function livingdraft_seo_attachment_redirect() {
 		$target = home_url( '/' );
 	}
 
-	wp_safe_redirect( $target, 301 );
+	// 4.8.0: wp_redirect(), not wp_safe_redirect(). Every target above
+	// comes from WordPress itself (a permalink, the media file's own URL,
+	// the home page) — never from the request. When media is served from
+	// a CDN or S3, the file URL is on another host, and wp_safe_redirect()
+	// would refuse it and send the reader to /wp-admin/ instead.
+	wp_redirect( $target, 301, 'Living Draft' ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 	exit;
 }
 add_action( 'template_redirect', 'livingdraft_seo_attachment_redirect', 1 );

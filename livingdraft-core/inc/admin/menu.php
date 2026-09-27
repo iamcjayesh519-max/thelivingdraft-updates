@@ -66,7 +66,7 @@ function livingdraft_admin_menu() {
 	add_submenu_page(
 		'livingdraft-overview',
 		__( 'Redirections', 'livingdraft-core' ),
-		__( 'Redirections', 'livingdraft-core' ),
+		function_exists( 'livingdraft_redirects_menu_label' ) ? livingdraft_redirects_menu_label() : __( 'Redirections', 'livingdraft-core' ),
 		'manage_options',
 		'livingdraft-redirects',
 		'livingdraft_redirects_admin_render'
@@ -336,7 +336,8 @@ function livingdraft_admin_get_overview_stats() {
 	// Redirects (from the redirects module).
 	if ( function_exists( 'livingdraft_redirects_count' ) ) {
 		$stats['redirects']       = livingdraft_redirects_count();
-		$stats['redirects_auto']  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}livingdraft_redirects WHERE auto_generated = 1" );
+		$stats['redirects_auto']  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}livingdraft_redirects WHERE auto_generated = 1 AND status = 'active'" );
+		$stats['redirects_pending'] = function_exists( 'livingdraft_redirects_pending_count' ) ? livingdraft_redirects_pending_count() : 0;
 		$stats['redirects_manual'] = $stats['redirects'] - $stats['redirects_auto'];
 	}
 
@@ -364,17 +365,21 @@ function livingdraft_admin_get_recent_activity( $limit = 8 ) {
 	// Recent auto-redirects (slug changes).
 	if ( function_exists( 'livingdraft_redirects_count' ) ) {
 		$rows = $wpdb->get_results(
-			"SELECT source_path, target_url, created_at, notes FROM {$wpdb->prefix}livingdraft_redirects
+			"SELECT source_path, target_url, created_at, notes, status FROM {$wpdb->prefix}livingdraft_redirects
 			 WHERE auto_generated = 1
 			 ORDER BY created_at DESC LIMIT 3"
 		);
 		foreach ( $rows as $r ) {
+			$pending = 'pending' === $r->status;
 			$items[] = array(
 				'time' => $r->created_at,
 				'html' => sprintf(
-					'<strong>%s</strong> — old URL <code>%s</code> now redirects to the new headline',
-					esc_html__( 'Auto-redirect created', 'livingdraft-core' ),
-					esc_html( wp_trim_words( $r->source_path, 6, '…' ) )
+					'<strong>%s</strong> — <code>%s</code> %s',
+					$pending ? esc_html__( 'Redirect proposed', 'livingdraft-core' ) : esc_html__( 'Automatic redirect', 'livingdraft-core' ),
+					esc_html( wp_trim_words( $r->source_path, 6, '…' ) ),
+					$pending
+						? sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'admin.php?page=livingdraft-redirects&tab=pending' ) ), esc_html__( 'awaiting your approval', 'livingdraft-core' ) )
+						: esc_html__( 'redirects to the story\'s new address', 'livingdraft-core' )
 				),
 			);
 		}
@@ -485,6 +490,14 @@ function livingdraft_admin_render_overview() {
 						(int) ( $stats['redirects_manual'] ?? 0 ),
 						__( 'manual', 'livingdraft-core' )
 					) ); ?>
+					<?php if ( ! empty( $stats['redirects_pending'] ) ) : ?>
+						<br><a href="<?php echo esc_url( admin_url( 'admin.php?page=livingdraft-redirects&tab=pending' ) ); ?>">
+							<?php
+							/* translators: %d: count. */
+							echo esc_html( sprintf( _n( '%d awaiting approval', '%d awaiting approval', (int) $stats['redirects_pending'], 'livingdraft-core' ), (int) $stats['redirects_pending'] ) );
+							?>
+						</a>
+					<?php endif; ?>
 				</p>
 			</div>
 		<?php endif; ?>

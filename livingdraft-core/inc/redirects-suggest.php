@@ -311,6 +311,21 @@ function livingdraft_suggest_targets_for_path( $url_path, $limit = 5 ) {
 		);
 	}
 
+	// -------- Strategy 5 (4.8.0): section pages ------------------------
+	//
+	// A story that no longer exists is often best answered by its section:
+	// /economy/state-budget/ → the Economy category. Earlier path segments
+	// (and the slug itself) are matched against category and tag slugs.
+	foreach ( livingdraft_suggest_term_candidates( $segments ) as $term_candidate ) {
+		$out[] = $term_candidate;
+	}
+	usort(
+		$out,
+		function ( $a, $b ) {
+			return $b['score'] - $a['score'];
+		}
+	);
+
 	/**
 	 * Give integrators a chance to add or reweight candidates.
 	 *
@@ -322,6 +337,119 @@ function livingdraft_suggest_targets_for_path( $url_path, $limit = 5 ) {
 	set_transient( $cache_key, $out, 12 * HOUR_IN_SECONDS );
 
 	return array_slice( $out, 0, $limit );
+}
+
+/**
+ * Category and tag archives whose slug appears in the broken path.
+ *
+ * @since 4.8.0
+ * @param string[] $segments Path segments, decoded.
+ * @return array[] Candidates in the same shape as posts (post_id 0).
+ */
+function livingdraft_suggest_term_candidates( $segments ) {
+	$out  = array();
+	$seen = array();
+	$last = count( $segments ) - 1;
+
+	foreach ( array_values( $segments ) as $i => $segment ) {
+		$slug = sanitize_title( $segment );
+		if ( '' === $slug || isset( $seen[ $slug ] ) ) {
+			continue;
+		}
+		$seen[ $slug ] = true;
+
+		foreach ( array( 'category', 'post_tag' ) as $taxonomy ) {
+			$term = get_term_by( 'slug', $slug, $taxonomy );
+			if ( ! $term || is_wp_error( $term ) || ! $term->count ) {
+				continue;
+			}
+			$link = get_term_link( $term );
+			if ( is_wp_error( $link ) ) {
+				continue;
+			}
+			// A section named in the path is a fair fallback; the last
+			// segment matching a section exactly is a stronger signal.
+			$score = $i === $last ? 70 : 50;
+			$out[] = array(
+				'post_id' => 0,
+				'title'   => sprintf(
+					/* translators: 1: taxonomy label, 2: term name. */
+					__( '%1$s: %2$s', 'livingdraft-core' ),
+					'category' === $taxonomy ? __( 'Section', 'livingdraft-core' ) : __( 'Tag', 'livingdraft-core' ),
+					$term->name
+				),
+				'url'     => $link,
+				'score'   => $score,
+				'reason'  => __( 'Section named in the old address', 'livingdraft-core' ),
+			);
+			break;
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * A story at this address that exists but is not published (draft,
+ * private, pending, scheduled or in the Trash). Suggestions only offer
+ * published targets, so this explains an empty list — the fix may be to
+ * republish, not to redirect.
+ *
+ * @since 4.8.0
+ * @param string $url_path Broken path.
+ * @return WP_Post|null
+ */
+function livingdraft_suggest_unpublished_match( $url_path ) {
+	global $wpdb;
+
+	$segments = array_values( array_filter( explode( '/', trim( (string) $url_path, '/' ) ), 'strlen' ) );
+	$slug     = sanitize_title( (string) end( $segments ) );
+	if ( '' === $slug ) {
+		return null;
+	}
+
+	$types_in = "'" . implode( "','", array_map( 'esc_sql', livingdraft_suggest_post_types() ) ) . "'";
+	$id       = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT ID FROM {$wpdb->posts}
+			 WHERE post_type IN ($types_in)
+			   AND post_status IN ('draft','pending','private','future','trash')
+			   AND ( post_name = %s OR post_name = %s )
+			 ORDER BY post_modified DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$slug,
+			$slug . '__trashed'
+		)
+	);
+
+	return $id ? get_post( (int) $id ) : null;
+}
+
+/**
+ * Print the "this story exists but is not published" note.
+ *
+ * @since 4.8.0
+ * @param string $url_path Broken path.
+ */
+function livingdraft_suggest_print_unpublished_note( $url_path ) {
+	$post = livingdraft_suggest_unpublished_match( $url_path );
+	if ( ! $post ) {
+		return;
+	}
+	$status = get_post_status_object( get_post_status( $post ) );
+	$edit   = 'trash' === $post->post_status ? admin_url( 'edit.php?post_status=trash&post_type=' . $post->post_type ) : get_edit_post_link( $post->ID, 'raw' );
+	printf(
+		'<p class="tld-help" style="margin:0 0 8px">%1$s <a href="%2$s">%3$s</a></p>',
+		esc_html(
+			sprintf(
+				/* translators: 1: post title, 2: status label. */
+				__( 'This address belongs to “%1$s”, which is not published (%2$s). Republishing it fixes the 404 without a redirect.', 'livingdraft-core' ),
+				get_the_title( $post ),
+				$status ? $status->label : $post->post_status
+			)
+		),
+		esc_url( (string) $edit ),
+		esc_html__( 'Open it', 'livingdraft-core' )
+	);
 }
 
 /**
@@ -342,8 +470,8 @@ add_action( 'deleted_post', 'livingdraft_suggest_bump_cache_version' );
  * Count of unresolved 404s that have at least one strong (score >= 60)
  * suggestion. Used for the sub-tab badge.
  *
- * Capped at the first 200 unresolved rows so it stays fast on sites with
- * a large 404 log — the badge is informational, not exact.
+ * Capped at the 50 most-hit open rows and cached for six hours (cleared
+ * whenever a redirect or 404 changes) — the badge is informational.
  */
 function livingdraft_suggest_actionable_count() {
 	$cache = get_transient( 'ld_sug_actionable' );
@@ -355,7 +483,7 @@ function livingdraft_suggest_actionable_count() {
 	$table = $wpdb->prefix . 'livingdraft_404s';
 	$rows  = $wpdb->get_col(
 		$wpdb->prepare(
-			"SELECT url_path FROM {$table} WHERE resolved = %d ORDER BY hits DESC LIMIT 200",
+			"SELECT url_path FROM {$table} WHERE resolved = %d ORDER BY hits DESC LIMIT 50",
 			0
 		)
 	);
@@ -368,7 +496,7 @@ function livingdraft_suggest_actionable_count() {
 		}
 	}
 
-	set_transient( 'ld_sug_actionable', $count, HOUR_IN_SECONDS );
+	set_transient( 'ld_sug_actionable', $count, 6 * HOUR_IN_SECONDS );
 	return $count;
 }
 
@@ -407,33 +535,31 @@ function livingdraft_suggest_handle_actions() {
 		);
 
 		if ( ! $row || '' === $target ) {
-			wp_safe_redirect(
-				add_query_arg(
-					array( 'page' => 'livingdraft-redirects', 'tab' => 'suggest', 'error' => 'accept' ),
-					admin_url( 'admin.php' )
-				)
-			);
+			livingdraft_redirects_flash( 'bad', __( 'That 404 or its target is no longer available.', 'livingdraft-core' ) );
+			wp_safe_redirect( livingdraft_redirects_admin_url( array( 'tab' => 'suggest' ) ) );
 			exit;
 		}
 
-		$rid = livingdraft_redirects_add(
-			$row->url_path,
-			$target,
-			$type,
-			__( 'Accepted from 404 suggestion', 'livingdraft-core' ),
-			false
-		);
-
-		if ( $rid ) {
-			livingdraft_404_mark_resolved( $log_id );
-		}
-
-		wp_safe_redirect(
-			add_query_arg(
-				array( 'page' => 'livingdraft-redirects', 'tab' => 'suggest', 'accepted' => (int) (bool) $rid ),
-				admin_url( 'admin.php' )
+		// 4.8.0: the same rules as every other redirect. A successful save
+		// also marks every open 404 for this path as fixed.
+		$result = livingdraft_redirects_save(
+			array(
+				'source'      => $row->url_path,
+				'target'      => $target,
+				'type'        => $type,
+				'notes'       => __( 'Accepted from 404 suggestion', 'livingdraft-core' ),
+				'on_existing' => 'replace',
 			)
 		);
+
+		if ( $result['ok'] ) {
+			livingdraft_404_set_state( $log_id, LIVINGDRAFT_404_FIXED );
+			livingdraft_redirects_flash( $result['warnings'] ? 'warn' : 'good', __( 'Redirect created. The 404 is marked fixed.', 'livingdraft-core' ), $result['warnings'] );
+		} else {
+			livingdraft_redirects_flash( 'bad', __( 'Redirect not created.', 'livingdraft-core' ) . ' ' . $result['message'] );
+		}
+
+		wp_safe_redirect( livingdraft_redirects_admin_url( array( 'tab' => 'suggest' ) ) );
 		exit;
 	}
 
@@ -444,14 +570,10 @@ function livingdraft_suggest_handle_actions() {
 		$log_id = (int) $_GET['ld_dismiss_suggestion'];
 		check_admin_referer( 'livingdraft_dismiss_suggestion_' . $log_id );
 
-		livingdraft_404_mark_resolved( $log_id );
+		livingdraft_404_set_state( $log_id, LIVINGDRAFT_404_IGNORED );
+		livingdraft_redirects_flash( 'good', __( 'Dismissed. This address will not come back to the log.', 'livingdraft-core' ) );
 
-		wp_safe_redirect(
-			add_query_arg(
-				array( 'page' => 'livingdraft-redirects', 'tab' => 'suggest', 'dismissed' => 1 ),
-				admin_url( 'admin.php' )
-			)
-		);
+		wp_safe_redirect( livingdraft_redirects_admin_url( array( 'tab' => 'suggest' ) ) );
 		exit;
 	}
 }
@@ -471,23 +593,9 @@ add_action( 'admin_init', 'livingdraft_suggest_handle_actions' );
  *     with its top three candidates as one-click Accept buttons.
  */
 function livingdraft_suggest_render_tab() {
-	if ( isset( $_GET['accepted'] ) ) {
-		echo '<div class="notice notice-success is-dismissible"><p>' .
-			esc_html__( 'Redirect created and 404 resolved.', 'livingdraft-core' ) .
-			'</p></div>';
-	}
-	if ( isset( $_GET['dismissed'] ) ) {
-		echo '<div class="notice notice-success is-dismissible"><p>' .
-			esc_html__( '404 dismissed.', 'livingdraft-core' ) .
-			'</p></div>';
-	}
-	if ( isset( $_GET['error'] ) && 'accept' === $_GET['error'] ) {
-		echo '<div class="notice notice-error is-dismissible"><p>' .
-			esc_html__( 'Could not save that redirect. The target URL may be invalid or point back to itself.', 'livingdraft-core' ) .
-			'</p></div>';
-	}
-
-	$focused_path = isset( $_GET['url_path'] ) ? sanitize_text_field( wp_unslash( $_GET['url_path'] ) ) : '';
+	// Messages are printed by the Redirections page (4.8.0 flash notices).
+	// Not sanitize_text_field(): it deletes %xx sequences from paths.
+	$focused_path = isset( $_GET['url_path'] ) ? trim( wp_check_invalid_utf8( wp_unslash( (string) $_GET['url_path'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
 
 	if ( '' !== $focused_path ) {
 		livingdraft_suggest_render_focused( $focused_path );
@@ -559,6 +667,7 @@ function livingdraft_suggest_render_overview() {
 				</div>
 			</div>
 
+			<?php livingdraft_suggest_print_unpublished_note( $log->url_path ); ?>
 			<?php if ( empty( $suggestions ) ) : ?>
 				<p style="color:#888;font-size:13px;margin:0">
 					<?php esc_html_e( 'No confident matches found. You can add a redirect manually.', 'livingdraft-core' ); ?>
@@ -691,6 +800,7 @@ function livingdraft_suggest_render_focused( $url_path ) {
 			?>
 		</p>
 
+		<?php livingdraft_suggest_print_unpublished_note( $log->url_path ); ?>
 		<?php if ( empty( $suggestions ) ) : ?>
 			<p style="padding:16px;background:#fafafa;border:1px solid #eee;color:#666">
 				<?php esc_html_e( 'No confident matches for this URL. Try adding a redirect manually with a target you choose.', 'livingdraft-core' ); ?>

@@ -168,8 +168,8 @@ function livingdraft_redirects_detect_redirection() {
 	// Only "enabled" URL-action rows with a plain URL source count as
 	// importable. Regex rows, login/referrer/agent/etc matchers, and
 	// disabled rows are all skipped.
-	$importable = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'enabled' AND regex = 0 AND action_type = 'url' AND match_type = 'url'" );
-	$skipped    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE NOT (status = 'enabled' AND regex = 0 AND action_type = 'url' AND match_type = 'url')" );
+	$importable = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'enabled' AND regex = 0 AND match_type = 'url' AND ( action_type = 'url' OR ( action_type = 'error' AND action_code = 410 ) )" );
+	$skipped    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE NOT (status = 'enabled' AND regex = 0 AND match_type = 'url' AND ( action_type = 'url' OR ( action_type = 'error' AND action_code = 410 ) ))" );
 
 	return array(
 		'available' => true,
@@ -211,22 +211,8 @@ function livingdraft_redirects_available_sources() {
  * trailing-slashes, so we don't do that here.
  */
 function livingdraft_redirects_normalise_source( $raw ) {
-	$raw = trim( (string) $raw );
-	if ( '' === $raw ) {
-		return '';
-	}
-	// If a full URL was stored, strip the host so we get a path.
-	if ( 0 === strpos( $raw, 'http://' ) || 0 === strpos( $raw, 'https://' ) ) {
-		$path = wp_parse_url( $raw, PHP_URL_PATH );
-		if ( is_string( $path ) && '' !== $path ) {
-			$raw = $path;
-		}
-	}
-	// Always leading-slash.
-	if ( '/' !== $raw[0] ) {
-		$raw = '/' . $raw;
-	}
-	return $raw;
+	// 4.8.0: one normaliser for the whole module.
+	return livingdraft_redirects_normalize_path( $raw );
 }
 
 /**
@@ -261,7 +247,11 @@ function livingdraft_redirects_import_rank_math() {
 		}
 		$target = (string) $row->url_to;
 		$type   = (int) $row->header_code;
-		if ( ! in_array( $type, array( 301, 302, 307 ), true ) ) {
+		if ( 451 === $type ) {
+			$skipped += is_array( $sources ) ? count( $sources ) : 1;
+			continue;
+		}
+		if ( ! in_array( $type, livingdraft_redirects_types(), true ) ) {
 			$type = 301;
 		}
 
@@ -272,7 +262,7 @@ function livingdraft_redirects_import_rank_math() {
 				continue;
 			}
 			$pattern = isset( $src['pattern'] ) ? livingdraft_redirects_normalise_source( $src['pattern'] ) : '';
-			if ( '' === $pattern || '' === $target ) {
+			if ( '' === $pattern || ( '' === $target && 410 !== $type ) ) {
 				$skipped++;
 				continue;
 			}
@@ -311,18 +301,16 @@ function livingdraft_redirects_import_yoast() {
 		}
 		$target = isset( $data['url'] ) ? (string) $data['url'] : '';
 		$type   = isset( $data['type'] ) ? (int) $data['type'] : 301;
-		if ( ! in_array( $type, array( 301, 302, 307, 410, 451 ), true ) ) {
-			$type = 301;
-		}
-		// Skip 410 (gone) and 451 (legal reasons) — our storage doesn't
-		// model non-redirect responses. Note them as skipped so the UI
-		// can show the count.
-		if ( in_array( $type, array( 410, 451 ), true ) ) {
+		// 4.8.0: 410 Gone is supported. 451 is not modelled; skipped.
+		if ( 451 === $type ) {
 			$skipped++;
 			continue;
 		}
+		if ( ! in_array( $type, livingdraft_redirects_types(), true ) ) {
+			$type = 301;
+		}
 		$source = livingdraft_redirects_normalise_source( $source );
-		if ( '' === $source || '' === $target ) {
+		if ( '' === $source || ( '' === $target && 410 !== $type ) ) {
 			$skipped++;
 			continue;
 		}
@@ -357,8 +345,8 @@ function livingdraft_redirects_import_redirection() {
 		 FROM {$table}
 		 WHERE status = 'enabled'
 		   AND regex = 0
-		   AND action_type = 'url'
-		   AND match_type = 'url'"
+		   AND match_type = 'url'
+		   AND ( action_type = 'url' OR ( action_type = 'error' AND action_code = 410 ) )"
 	);
 
 	$imported = 0;
@@ -369,10 +357,10 @@ function livingdraft_redirects_import_redirection() {
 		$source = livingdraft_redirects_normalise_source( $row->url );
 		$target = (string) $row->action_data;
 		$type   = (int) $row->action_code;
-		if ( ! in_array( $type, array( 301, 302, 307 ), true ) ) {
+		if ( ! in_array( $type, livingdraft_redirects_types(), true ) ) {
 			$type = 301;
 		}
-		if ( '' === $source || '' === $target ) {
+		if ( '' === $source || ( '' === $target && 410 !== $type ) ) {
 			$skipped++;
 			continue;
 		}
@@ -395,27 +383,23 @@ function livingdraft_redirects_import_redirection() {
  * @return string 'imported', 'existing', or 'skipped'.
  */
 function livingdraft_redirects_import_row( $source, $target, $type, $source_label ) {
-	global $wpdb;
-	$table = $wpdb->prefix . 'livingdraft_redirects';
-
-	// livingdraft_redirects_add() trailing-slashes the source before
-	// storing, so match its normalisation before checking existence.
-	$normalised = trailingslashit( $source );
-
-	$existing = $wpdb->get_var(
-		$wpdb->prepare( "SELECT id FROM {$table} WHERE source_path = %s LIMIT 1", $normalised )
+	// 4.8.0: same rules as every other redirect. Existing rows are never
+	// overwritten, and a rule that would hide a live story is refused.
+	$result = livingdraft_redirects_save(
+		array(
+			'source'      => $source,
+			'target'      => $target,
+			'type'        => $type,
+			/* translators: %s: import source name (Rank Math, Yoast Premium, Redirection plugin) */
+			'notes'       => sprintf( __( 'Imported from %s', 'livingdraft-core' ), $source_label ),
+			'on_existing' => 'skip',
+		)
 	);
-	if ( $existing ) {
-		return 'existing';
+
+	if ( $result['ok'] ) {
+		return 'imported';
 	}
-
-	$note = sprintf(
-		/* translators: %s: import source name (Rank Math, Yoast Premium, Redirection plugin) */
-		__( 'Imported from %s', 'livingdraft-core' ),
-		$source_label
-	);
-	$id = livingdraft_redirects_add( $source, $target, $type, $note, false );
-	return $id ? 'imported' : 'skipped';
+	return 'existing' === $result['code'] ? 'existing' : 'skipped';
 }
 
 /* ==================================================================

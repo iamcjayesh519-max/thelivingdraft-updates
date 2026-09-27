@@ -1,6 +1,6 @@
 === The Living Draft Core ===
-Version: 4.7.0
-Stable tag: 4.7.0
+Version: 4.9.0
+Stable tag: 4.9.0
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 8.2
@@ -12,13 +12,14 @@ A single site plugin for The Living Draft that carries the parts of the
 newsroom that must keep working even if the theme changes — SEO stack,
 Search Console integration, redirects, sitemaps, structured data — plus
 the editorial infrastructure (update log, second bylines, view counting,
-newsletter subscribers, cookie consent, article blocks, custom CSS).
+newsletter subscribers, site analytics, article blocks, custom CSS).
 
 == SEO stack ==
 The SEO panel lives in the post sidebar (right column), always visible
 while writing. Every AI feature — Generate SEO title, Generate meta
 description, Suggest focus keyword, Fix-with-AI on failing checks —
-runs against your chosen provider (OpenAI, Gemini, or OpenRouter) using
+runs against your chosen provider (OpenAI, Gemini, xAI Grok, OpenRouter
+or Groq) using
 your own API key. The per-post Model picker lets a writer pick their
 preferred model and it persists across posts.
 
@@ -55,6 +56,92 @@ chain. If you're still on PHP 7.4 / 8.0 / 8.1 and can't update,
 install the 3.1.x line, which supports PHP 7.4 and up.
 
 == Changelog ==
+
+= 4.9.0 =
+* REMOVED: The cookie consent banner, its settings screen, its CSS and
+  JavaScript. Google Consent Mode is now told "granted", so Site Kit /
+  Google Analytics measures every reader in full. Old helper functions
+  still exist and return "yes"; [ld_cookie_settings] now prints nothing.
+  Page caches are purged once so no cached banner survives.
+* NEW: Analytics. The Living Draft > Analytics shows visitors, pageviews
+  and sessions for today, yesterday, this week, month, year and all
+  time, each against the same point of the previous period. Chart by
+  day, week, month or year over any range. Engaged time, scroll depth,
+  bounce rate, pages per session, new vs returning. Channels (search,
+  Google News / Discover, social, AI assistants, email, paid, referral,
+  direct), referring sites, UTM campaigns, devices, browsers, systems,
+  countries (behind Cloudflare), busiest hours, readers right now.
+  Dashboard widget, per-post Readership box, CSV export.
+* Counted in the reader's browser after load, so page caches do not
+  hide visits. No cookies: a random id in localStorage. Bots, logged-in
+  staff (remembered per browser), listed IPs and ?ld_optout=1 browsers
+  are never counted. Raw pageviews kept 25 months (configurable); day,
+  week, month and year totals kept forever. Settings > Analytics.
+* The per-article view counter now rides on the same request, so an
+  article costs one call instead of two.
+* NEW: AI analyst on the Analytics screen. Sends aggregate figures only
+  and returns a briefing: headline, what drove it, warning signs, five
+  next actions, story ideas.
+* NEW: AI key points. An editable "In brief" box for each article,
+  generated from the post sidebar, hidden per article if wanted, flagged
+  when the story changes afterwards. Optional auto-write on first
+  publish (off by default). Settings > Key points (AI).
+* NEW: xAI Grok as an AI provider (default grok-4.3). Groq is now on the
+  settings screen too.
+* NEW: AI fallback. If a provider fails, the request goes to the next
+  one with a key, in an order you set. Test connection checks every key.
+* FIX: OpenAI GPT-5.x and o-series requests. They reject max_tokens and
+  most reject custom temperature on Chat Completions; requests now use
+  max_completion_tokens, low reasoning effort and headroom, and retry
+  once without any parameter a model refuses.
+* FIX: Gemini 2.5 / 3.x "thinking" models could return an empty answer
+  on short tasks; they now get output headroom.
+* SECURITY: The Gemini key is sent in a header rather than the URL, so it
+  no longer appears in proxy or server logs.
+
+= 4.8.0 =
+* NEW: Automatic redirects need your approval. When a published story
+  changes address, is unpublished or is deleted, the redirect (or a
+  410 Gone) is proposed under Redirections > Awaiting approval and does
+  nothing until you approve it. Approve, edit, reject or approve all.
+  The menu shows how many are waiting.
+* While a proposal waits, WordPress still sends readers from a renamed
+  story's old address to its new one. Settings has a strict mode that
+  switches this (and WordPress's URL guessing) off.
+* FIX: Renaming a story and renaming it back no longer creates a
+  redirect loop. A story is never hidden by a redirect: automatic ones
+  are removed and hand-made ones are paused when a story goes live there.
+* FIX: Loops are refused and chains are shortened, so every redirect is
+  one hop. Redirects that pointed at an address are updated when that
+  address itself is redirected.
+* FIX: A redirect over a live story is refused unless you tick a box.
+* FIX: Full URLs, paths without a leading slash, %20-style characters
+  and non-English slugs in the From field now match.
+* NEW: ?utm_ and other query parameters are kept on redirect (setting).
+* NEW: 410 Gone type, and Mark gone in the 404 log. 308 type added.
+* NEW: Edit a redirect. Automatic proposals never replace a redirect you
+  made.
+* FIX: Ignore in the 404 log is permanent. Creating a redirect marks the
+  404 fixed; deleting the redirect reopens it.
+* 404 log filters prefetch checks, scanners, file probes, inline data:
+  scripts and crawler loops, using the view counter's bot list.
+* NEW: Answers /.well-known/traffic-advice so Chrome can prefetch stories
+  from Google results (setting).
+* Saving a redirect purges that address from LiteSpeed, WP Rocket, W3TC
+  and WP Super Cache.
+* FIX: Attachment pages with media on a CDN no longer redirect readers
+  to the login page; a draft parent is never used as the target.
+* Suggestions offer section (category / tag) pages and say when the
+  address belongs to a draft or trashed story.
+* CSV import follows the same rules as the form, skips existing
+  redirects unless you tick Replace, accepts semicolon files and BOMs,
+  round-trips its own export (with status), and refuses non-CSV files.
+  The Rank Math, Yoast Premium and Redirection importers use the same
+  rules and now import 410s.
+* Upgrade: existing redirects are repaired once (paths normalised,
+  duplicates merged, hidden stories unhidden, chains shortened, loops
+  moved to Awaiting approval) and the counts are shown on the page.
+  Redirects that were already live stay live.
 
 = 4.7.0 =
 * NEW: Link assistant, a panel on every article's edit screen.
