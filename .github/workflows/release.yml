@@ -1,0 +1,111 @@
+# Builds WordPress-ready zips for the theme and plugin, publishes them as
+# GitHub Releases, and rewrites updates.json so WordPress sees the new version.
+#
+# Runs whenever anything inside livingdraft/ or livingdraft-core/ changes on
+# main, or by hand from the Actions tab ("Run workflow").
+
+name: Build WordPress updates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'livingdraft/**'
+      - 'livingdraft-core/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wordpress-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build, release and write updates.json
+        run: |
+          set -euo pipefail
+
+          # Read "Key: value" from a WordPress file header.
+          header() {
+            grep -m1 -E "^[[:space:]*#/]*$2:" "$1" \
+              | sed -E 's/^[^:]*:[[:space:]]*//' | tr -d '\r' | sed -E 's/[[:space:]]+$//' || true
+          }
+          # Read the version from a define( 'NAME', 'x.y.z' ) line.
+          constant() {
+            grep -m1 "define( '$2'" "$1" | sed -E "s/.*'$2',[[:space:]]*'([^']*)'.*/\1/" || true
+          }
+
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          mkdir -p dist
+          [ -f updates.json ] && cp updates.json manifest.json || echo '{}' > manifest.json
+
+          # publish <kind> <folder> <main-file> <constant-file> <constant-name> <label>
+          publish() {
+            local kind="$1" dir="$2" main="$3" cfile="$4" cname="$5" label="$6"
+
+            if [ ! -f "$dir/$main" ]; then
+              echo "::notice::$dir/$main not found yet - skipping the $kind."
+              return 0
+            fi
+
+            local ver cver tag zip url
+            ver="$(header "$dir/$main" 'Version')"
+            cver="$(constant "$dir/$cfile" "$cname")"
+
+            if [ -z "$ver" ]; then
+              echo "::error::Could not read a Version: line in $dir/$main"; exit 1
+            fi
+            if [ -n "$cver" ] && [ "$cver" != "$ver" ]; then
+              echo "::error::$label version mismatch: $main says $ver but $cfile says $cver. Make them the same and push again."
+              exit 1
+            fi
+
+            tag="$kind-v$ver"
+            zip="dist/$dir.zip"
+            url="$REPO_URL/releases/download/$tag/$dir.zip"
+
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "::warning::$label $ver is already released. If you changed its files, raise the version number or WordPress will not offer the update."
+            else
+              # Zip WITH the top-level folder - WordPress needs it.
+              zip -rq "$zip" "$dir" -x '*.DS_Store' '*/__MACOSX/*' '*/.git*'
+              gh release create "$tag" "$zip" \
+                --title "$label $ver" \
+                --notes "Automatic build of $label $ver for WordPress updates."
+              echo "Released $tag"
+            fi
+
+            jq --arg k "$kind" \
+               --arg v "$ver" \
+               --arg d "$url" \
+               --arg r "$(header "$dir/$main" 'Requires at least')" \
+               --arg p "$(header "$dir/$main" 'Requires PHP')" \
+               --arg t "$(header "$dir/$main" 'Tested up to')" \
+               --arg c "<p>Release notes: <a href=\"$REPO_URL/releases/tag/$tag\">$tag</a></p>" \
+               '.[$k] = {version:$v, download:$d, requires:$r, requires_php:$p, tested:$t, changelog:$c}' \
+               manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+          }
+
+          publish plugin livingdraft-core livingdraft-core.php livingdraft-core.php LIVINGDRAFT_CORE_VERSION "Living Draft Core"
+          publish theme  livingdraft      style.css            functions.php        LIVINGDRAFT_VERSION      "The Living Draft theme"
+
+          mv manifest.json updates.json
+          echo "---- updates.json ----"; cat updates.json
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add updates.json
+          if git diff --cached --quiet; then
+            echo "updates.json unchanged."
+          else
+            git commit -m "Update updates.json [skip ci]"
+            git push
+          fi
